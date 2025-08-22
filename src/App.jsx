@@ -1,6 +1,6 @@
-import React, { useMemo, useState, useEffect } from 'react'
-import DeckOfCards from './Deck'
+import { useMemo, useState, useEffect } from 'react'
 import BlackjackHand from './BlackjackHand'
+import Table from './Table'
 
 export default function App() {
 
@@ -18,7 +18,9 @@ export default function App() {
   return (
     // <div className="min-h-screen w-full bg-gradient-to-b from-emerald-900 via-emerald-950 to-black text-emerald-50 antialiased">
     //   <div className="mx-auto max-w-5xl px-4 pt-10">
-    <BlackjackHand />
+    <Table>
+      <BlackjackHand />
+    </Table>
     //   </div>
     // </div>
   )
