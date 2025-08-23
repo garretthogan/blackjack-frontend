@@ -1,9 +1,11 @@
 export default {
-  semi: true,
-  singleQuote: true,
   tabWidth: 2,
   useTabs: false,
+  singleQuote: true,
+  semi: true,
   trailingComma: 'es5',
   bracketSpacing: true,
   arrowParens: 'avoid',
-}
+  printWidth: 140,
+  proseWrap: 'preserve',
+};
