@@ -18,12 +18,14 @@ export default function GridDeck({ cards }) {
       <div>
         <button className={btnCls} onClick={() => { setIsLegendTrayOpen(!isLegendTrayOpen) }}>Legend</button>
       </div>
-        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4 text-sm">
-          <SuitLegend title="Spades" cards={spade} color="text-stone-200" />
-          <SuitLegend title="Hearts" cards={heart} color="text-red-400" />
-          <SuitLegend title="Diamonds" cards={diamond} color="text-red-400" />
-          <SuitLegend title="Clubs" cards={club} color="text-stone-200" />
-        </div>
+        <ExpandableTray isExpanded={isLegendTrayOpen} maxHeightExpanded={'256px'}>
+          <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4 text-sm">
+            <SuitLegend title="Spades" cards={spade} color="text-stone-200" />
+            <SuitLegend title="Hearts" cards={heart} color="text-red-400" />
+            <SuitLegend title="Diamonds" cards={diamond} color="text-red-400" />
+            <SuitLegend title="Clubs" cards={club} color="text-stone-200" />
+          </div>
+        </ExpandableTray>
       <div className="py-12">
         <button className={btnCls} onClick={() => { setIsDeckTrayOpen(!isDeckTrayOpen) }}>{isDeckTrayOpen ? 'Hide Cards' : 'Show Cards in Deck'}</button>
       </div>
