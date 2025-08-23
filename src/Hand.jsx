@@ -23,9 +23,9 @@ export default function Hand({ cards }) {
                         key={`hand-${card.rank}-${card.suit}`}
                         style={{ display: 'inline-block' }}
                     >
-                        <div>
-                            <Card card={card} />
-                        </div>
+
+                        <Card card={card} />
+
                     </div>
                 );
             })}
