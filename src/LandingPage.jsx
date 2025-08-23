@@ -44,7 +44,7 @@ export default function LandingPage() {
             {/* Hero */}
             <section className="mx-auto max-w-4xl px-4 py-12 sm:py-16">
                 <h1 className="text-center text-3xl font-extrabold tracking-tight sm:text-5xl">
-                    PLAY BLACKJACK
+                    ROGUELIKE BLACKJACK
                 </h1>
                 <p className="mx-auto mt-3 max-w-xl text-center ">
                     Jump in with Quick Play or choose a table that fits your stakes.
