@@ -58,7 +58,8 @@ export default function SeatAndBuyIn() {
             </span>
           </div>
           <div className="text-sm">
-            Table {table.id} • Min ${table.min} • Max ${table.max}
+            Table {table.id} • Min ${table.min} • Max $
+            {table.max}
           </div>
         </div>
       </header>
@@ -67,7 +68,9 @@ export default function SeatAndBuyIn() {
       <main className="mx-auto grid max-w-5xl gap-8 px-4 py-8 md:grid-cols-2">
         {/* Table / Seats */}
         <section className="rounded-2xl border border-zinc-200 p-6 shadow-sm">
-          <div className="mb-4 text-sm font-medium tracking-tight">Dealer</div>
+          <div className="mb-4 text-sm font-medium tracking-tight">
+            Dealer
+          </div>
           <div className="relative mx-auto mb-6 h-1 w-full rounded" />
 
           <div className="grid grid-cols-5 gap-4">
@@ -137,7 +140,10 @@ export default function SeatAndBuyIn() {
 
           {/* Custom input */}
           <div className="grid gap-2 sm:max-w-xs">
-            <label htmlFor="amount" className="text-xs font-medium">
+            <label
+              htmlFor="amount"
+              className="text-xs font-medium"
+            >
               Amount (Min ${table.min}, Max ${table.max})
             </label>
             <input
@@ -148,7 +154,11 @@ export default function SeatAndBuyIn() {
               step={25}
               value={amount}
               onChange={e =>
-                setAmount(e.target.value === '' ? '' : Number(e.target.value))
+                setAmount(
+                  e.target.value === ''
+                    ? ''
+                    : Number(e.target.value)
+                )
               }
               className="rounded-xl border border-zinc-300 px-3 py-2 text-sm outline-none ring-zinc-400 focus-visible:ring-2"
               placeholder={`${table.min}`}
@@ -182,7 +192,8 @@ export default function SeatAndBuyIn() {
       {/* Footer */}
       <footer className="border-t border-zinc-200">
         <div className="mx-auto max-w-5xl px-4 py-6 text-xs">
-          Tip: Use presets for speed; custom accepts multiples of 25.
+          Tip: Use presets for speed; custom accepts multiples of
+          25.
         </div>
       </footer>
     </div>

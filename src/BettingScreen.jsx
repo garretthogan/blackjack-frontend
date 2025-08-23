@@ -40,7 +40,6 @@ export default function BettingScreen({
       ...prev,
       [d]: Math.max(0, (prev[d] || 0) + n),
     }));
-
   const removeChip = (d, n = 1) =>
     setChipCounts(prev => ({
       ...prev,

@@ -1,5 +1,10 @@
 import { useState } from 'react';
-import { buildDeck, evaluateBlackjackHand, shuffle, sortDeck } from './helpers';
+import {
+  buildDeck,
+  evaluateBlackjackHand,
+  shuffle,
+  sortDeck,
+} from './helpers';
 import StackedDeck from './StackedDeck';
 import GridDeck from './GridDeck';
 import Hand from './Hand';
@@ -116,8 +121,12 @@ export default function Blackjack() {
           cards={sortDeck(
             deck.filter(card => {
               return (
-                !hand.find(cardInHand => card.id === cardInHand.id) &&
-                !dealerHand.find(cardInHand => card.id === cardInHand.id)
+                !hand.find(
+                  cardInHand => card.id === cardInHand.id
+                ) &&
+                !dealerHand.find(
+                  cardInHand => card.id === cardInHand.id
+                )
               );
             })
           )}
