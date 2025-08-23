@@ -61,31 +61,31 @@ export default function Blackjack() {
   return (
     <div >
       <header className="sticky top-0 z-10 border-b border-zinc-200 backdrop-blur">
-          <div className="mx-auto flex max-w-6xl items-center justify-between p-4">
-              <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-lg " aria-hidden />
-                <span className="font-semibold tracking-tight cursor-pointer" onClick={() => { navigate('/') }}>Blackjack</span>
-              </div>
-              <nav className="flex items-center gap-3 text-sm">
-                <button
-                  className="rounded-lg border border-zinc-300 px-3 py-1.5 hover:bg-zinc-100"
-                  onClick={() => alert("Open settings")}
-                >
-                  Settings
-                </button>
-                <button
-                  className="rounded-lg border border-zinc-300 px-3 py-1.5 hover:bg-zinc-100"
-                  onClick={() => alert("Show how to play overlay")}
-                >
-                  How to Play
-                </button>
-              </nav>
+        <div className="mx-auto flex max-w-6xl items-center justify-between p-4">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-lg " aria-hidden />
+            <span className="font-semibold tracking-tight cursor-pointer" onClick={() => { navigate('/') }}>Blackjack</span>
           </div>
+          <nav className="flex items-center gap-3 text-sm">
+            <button
+              className="rounded-lg border border-zinc-300 px-3 py-1.5 hover:bg-zinc-100"
+              onClick={() => alert("Open settings")}
+            >
+              Settings
+            </button>
+            <button
+              className="rounded-lg border border-zinc-300 px-3 py-1.5 hover:bg-zinc-100"
+              onClick={() => alert("Show how to play overlay")}
+            >
+              How to Play
+            </button>
+          </nav>
+        </div>
       </header>
       <div className="py-2">
         <div className="rounded-md bg-green-900/70 px-6 py-2 text-sm border border-green-950 shadow">
-            <div>Dealer</div>
-            <Hand cards={dealerHand} />
+          <div>Dealer</div>
+          <Hand cards={dealerHand} />
         </div>
       </div>
       <div className="py-2">
