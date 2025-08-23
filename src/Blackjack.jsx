@@ -121,12 +121,8 @@ export default function Blackjack() {
           cards={sortDeck(
             deck.filter(card => {
               return (
-                !hand.find(
-                  cardInHand => card.id === cardInHand.id
-                ) &&
-                !dealerHand.find(
-                  cardInHand => card.id === cardInHand.id
-                )
+                !hand.find(cardInHand => card.id === cardInHand.id) &&
+                !dealerHand.find(cardInHand => card.id === cardInHand.id)
               );
             })
           )}

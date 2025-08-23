@@ -12,8 +12,7 @@ export default function LandingPage() {
     alert('Quick Play: joining a low-stakes table...');
   const handleChooseTable = () =>
     alert('Open table picker modal (not implemented)');
-  const handleSignIn = () =>
-    alert('Open sign-in (not implemented)');
+  const handleSignIn = () => alert('Open sign-in (not implemented)');
   const handlePlayTier = tier => () =>
     alert(`Joining ${tier} stakes table...`);
 
@@ -53,8 +52,7 @@ export default function LandingPage() {
           ROGUELIKE BLACKJACK
         </h1>
         <p className="mx-auto mt-3 max-w-xl text-center ">
-          Jump in with Quick Play or choose a table that fits
-          your stakes.
+          Jump in with Quick Play or choose a table that fits your stakes.
         </p>
 
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3 text-zinc-600">

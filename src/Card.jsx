@@ -16,9 +16,7 @@ export default function Card({ card }) {
         >
           {card.rank}
         </span>
-        <span
-          className={`${isRed ? 'text-red-600' : 'text-stone-900'}`}
-        >
+        <span className={`${isRed ? 'text-red-600' : 'text-stone-900'}`}>
           {card.suit}
         </span>
       </div>
@@ -28,9 +26,7 @@ export default function Card({ card }) {
         >
           {card.rank}
         </span>
-        <span
-          className={`${isRed ? 'text-red-600' : 'text-stone-900'}`}
-        >
+        <span className={`${isRed ? 'text-red-600' : 'text-stone-900'}`}>
           {card.suit}
         </span>
       </div>

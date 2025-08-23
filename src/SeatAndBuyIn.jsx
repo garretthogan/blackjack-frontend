@@ -58,8 +58,7 @@ export default function SeatAndBuyIn() {
             </span>
           </div>
           <div className="text-sm">
-            Table {table.id} • Min ${table.min} • Max $
-            {table.max}
+            Table {table.id} • Min ${table.min} • Max ${table.max}
           </div>
         </div>
       </header>
@@ -140,10 +139,7 @@ export default function SeatAndBuyIn() {
 
           {/* Custom input */}
           <div className="grid gap-2 sm:max-w-xs">
-            <label
-              htmlFor="amount"
-              className="text-xs font-medium"
-            >
+            <label htmlFor="amount" className="text-xs font-medium">
               Amount (Min ${table.min}, Max ${table.max})
             </label>
             <input
@@ -155,9 +151,7 @@ export default function SeatAndBuyIn() {
               value={amount}
               onChange={e =>
                 setAmount(
-                  e.target.value === ''
-                    ? ''
-                    : Number(e.target.value)
+                  e.target.value === '' ? '' : Number(e.target.value)
                 )
               }
               className="rounded-xl border border-zinc-300 px-3 py-2 text-sm outline-none ring-zinc-400 focus-visible:ring-2"
@@ -192,8 +186,7 @@ export default function SeatAndBuyIn() {
       {/* Footer */}
       <footer className="border-t border-zinc-200">
         <div className="mx-auto max-w-5xl px-4 py-6 text-xs">
-          Tip: Use presets for speed; custom accepts multiples of
-          25.
+          Tip: Use presets for speed; custom accepts multiples of 25.
         </div>
       </footer>
     </div>

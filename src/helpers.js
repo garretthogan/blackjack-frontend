@@ -26,12 +26,8 @@ export function buildDeck() {
 }
 
 export function sortDeck(deck) {
-  const rankIndex = Object.fromEntries(
-    RANKS_ASC.map((r, i) => [r, i])
-  );
-  const suitIndex = Object.fromEntries(
-    SUITS.map((s, i) => [s, i])
-  );
+  const rankIndex = Object.fromEntries(RANKS_ASC.map((r, i) => [r, i]));
+  const suitIndex = Object.fromEntries(SUITS.map((s, i) => [s, i]));
   return deck.slice().sort((a, b) => {
     if (suitIndex[a.suit] !== suitIndex[b.suit])
       return suitIndex[a.suit] - suitIndex[b.suit];
@@ -82,8 +78,7 @@ export function uniqBy(arr, keyFn) {
 }
 
 export function evaluateBlackjackHand(hand) {
-  if (hand.length === 0)
-    return { value: 0, message: 'No cards in hand.' };
+  if (hand.length === 0) return { value: 0, message: 'No cards in hand.' };
   // calculate values with aces flexible
   let total = 0;
   let aces = 0;
