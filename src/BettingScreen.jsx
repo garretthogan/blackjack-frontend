@@ -14,15 +14,21 @@ export default function BettingScreen({
   onDeal,
 }) {
   const initial = denoms.includes(25) ? 25 : denoms[0];
-  const [selectedDenom, setSelectedDenom] = React.useState(initial);
+  const [selectedDenom, setSelectedDenom] =
+    React.useState(initial);
   const [chipCounts, setChipCounts] = React.useState({}); // {25: 3, 100: 1}
 
   const total = React.useMemo(
-    () => denoms.reduce((sum, d) => sum + d * (chipCounts[d] || 0), 0),
+    () =>
+      denoms.reduce(
+        (sum, d) => sum + d * (chipCounts[d] || 0),
+        0
+      ),
     [chipCounts, denoms]
   );
 
-  const withinLimits = total === 0 || (total >= min && total <= max);
+  const withinLimits =
+    total === 0 || (total >= min && total <= max);
 
   const rootRef = React.useRef(null);
   React.useEffect(() => {
@@ -30,9 +36,16 @@ export default function BettingScreen({
   }, []);
 
   const addChip = (d, n = 1) =>
-    setChipCounts(prev => ({ ...prev, [d]: Math.max(0, (prev[d] || 0) + n) }));
+    setChipCounts(prev => ({
+      ...prev,
+      [d]: Math.max(0, (prev[d] || 0) + n),
+    }));
+
   const removeChip = (d, n = 1) =>
-    setChipCounts(prev => ({ ...prev, [d]: Math.max(0, (prev[d] || 0) - n) }));
+    setChipCounts(prev => ({
+      ...prev,
+      [d]: Math.max(0, (prev[d] || 0) - n),
+    }));
   const clearBets = () => setChipCounts({});
 
   const navigate = useNavigate();
@@ -50,7 +63,17 @@ export default function BettingScreen({
   };
 
   const onKeyDown = e => {
-    const numberKeys = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    const numberKeys = [
+      '1',
+      '2',
+      '3',
+      '4',
+      '5',
+      '6',
+      '7',
+      '8',
+      '9',
+    ];
     const idx = numberKeys.indexOf(e.key);
     if (idx !== -1 && idx < denoms.length) {
       setSelectedDenom(denoms[idx]);
@@ -60,7 +83,8 @@ export default function BettingScreen({
     else if (e.key === 'ArrowLeft') cycleDenom(-1);
     else if (e.key === '+') addChip(selectedDenom);
     else if (e.key === '-') removeChip(selectedDenom);
-    else if (e.key === 'Backspace' || e.key === 'Delete') clearBets();
+    else if (e.key === 'Backspace' || e.key === 'Delete')
+      clearBets();
     else if (e.key === 'Enter') handleDeal();
   };
 
@@ -84,7 +108,9 @@ export default function BettingScreen({
         <div className="mx-auto flex max-w-5xl items-center justify-between p-4">
           <div className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-lg" aria-hidden />
-            <span className="font-semibold tracking-tight">Blackjack</span>
+            <span className="font-semibold tracking-tight">
+              Blackjack
+            </span>
           </div>
           <div className="text-sm">
             Table Limits: ${min}–${max}
@@ -94,7 +120,9 @@ export default function BettingScreen({
 
       <main className="mx-auto max-w-5xl px-4 py-8">
         <section className="rounded-2xl border border-zinc-200 p-6 shadow-sm">
-          <div className="mb-6 text-sm font-medium tracking-tight">Dealer</div>
+          <div className="mb-6 text-sm font-medium tracking-tight">
+            Dealer
+          </div>
 
           {/* Betting spot */}
           <div className="flex flex-col items-center gap-4 py-8">
@@ -162,7 +190,9 @@ export default function BettingScreen({
               {denoms.map(d => (
                 <span key={d} className="mr-3">
                   ${d}:{' '}
-                  <span className="font-medium">{chipCounts[d] || 0}</span>
+                  <span className="font-medium">
+                    {chipCounts[d] || 0}
+                  </span>
                 </span>
               ))}
             </div>
@@ -186,7 +216,9 @@ export default function BettingScreen({
                 type="button"
               >
                 ${d}
-                <span className="ml-2 text-[10px]">[{i + 1}]</span>
+                <span className="ml-2 text-[10px]">
+                  [{i + 1}]
+                </span>
               </button>
             ))}
           </div>
@@ -218,9 +250,10 @@ export default function BettingScreen({
           </div>
 
           <p className="mt-6 text-center text-xs">
-            <kbd>1–{Math.min(9, denoms.length)}</kbd> select chip ·{' '}
-            <kbd>←/→</kbd> cycle · <kbd>+</kbd>/<kbd>-</kbd> adjust ·{' '}
-            <kbd>Enter</kbd> deal · <kbd>Backspace</kbd> clear
+            <kbd>1–{Math.min(9, denoms.length)}</kbd> select chip
+            · <kbd>←/→</kbd> cycle · <kbd>+</kbd>/<kbd>-</kbd>{' '}
+            adjust · <kbd>Enter</kbd> deal · <kbd>Backspace</kbd>{' '}
+            clear
           </p>
           <p className="mt-2 text-center text-xs">
             Table limits: ${min}–${max}
