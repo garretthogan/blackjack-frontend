@@ -20,7 +20,7 @@ export default function CardBack() {
             </div>
             <div className="absolute inset-0 grid place-items-center">
                 <div className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-sm tracking-wider text-white/90">
-                    ★★
+                    ★
                 </div>
             </div>
         </div>

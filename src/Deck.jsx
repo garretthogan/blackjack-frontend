@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { btnAccent, btnCls, buildDeck, jitter, shuffle, sortDeck, suitName, uniqBy } from "./helpers";
+import GridDeck from "./GridDeck";
+import StackedDeck from "./StackedDeck";
 
 /**
  * DeckOfCards — displays a full 52-card deck.
@@ -107,61 +109,6 @@ export default function DeckOfCards({
     );
 }
 
-function GridDeck({ cards }) {
-    return (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10">
-            {cards.map((card) => (
-                <Card key={`${card.rank}-${card.suit}`} card={card} />
-            ))}
-        </div>
-    );
-}
-
-function StackedDeck({ cards, faceDown, onDrawClick }) {
-    const count = cards.length;
-    const maxVisible = Math.min(count, 52);
-
-    return (
-        <div className="relative mx-auto grid h-[54vh] max-h-[520px] min-h-[280px] place-items-center">
-            <div className="relative h-[70%] w-[min(80vw,420px)]">
-                {cards.slice(0, maxVisible).map((card, idx) => {
-                    const z = idx + 1;
-                    const jx = jitter(idx, 1.4);
-                    const jy = jitter(idx + 99, 1.4);
-                    const rot = jitter(idx + 199, 1.2);
-                    const lift = Math.min(24, idx * 0.25);
-                    const style = {
-                        zIndex: z,
-                        transform: `translate(-50%, -50%) translate(${jx}px, ${-lift + jy}px) rotate(${rot}deg)`,
-                    };
-                    return (
-                        <div
-                            key={`${card.rank}-${card.suit}-${idx}`}
-                            className="absolute left-1/2 top-1/2"
-                            style={style}
-                        >
-                            {faceDown ? <CardBack /> : <Card card={card} />}
-                        </div>
-                    );
-                })}
-
-                {onDrawClick && count > 0 && (
-                    <button
-                        onClick={onDrawClick}
-                        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-xl border border-white/10 bg-white/0 px-6 py-8 text-xs text-white/60 hover:bg-white/5"
-                        aria-label="Draw top card"
-                        title="Draw top card"
-                    >
-                        Draw
-                    </button>
-                )}
-
-                <div className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-28 w-48 -translate-x-1/2 -translate-y-1/2 rounded-[40%] bg-black/40 blur-2xl" />
-            </div>
-        </div>
-    );
-}
-
 function RevealArea({ drawn }) {
     const top = drawn[drawn.length - 1];
     const prevRaw = drawn.slice(-6, -1);
@@ -213,62 +160,6 @@ function SuitLegend({ title, cards, color }) {
                         {c.rank}{c.suit}
                     </span>
                 ))}
-            </div>
-        </div>
-    );
-}
-
-function Card({ card }) {
-    const isRed = card.suit === "♥" || card.suit === "♦";
-    return (
-        <div
-            className="group relative aspect-[5/7] select-none rounded-2xl bg-white ring-1 ring-black/5 shadow-[0_6px_24px_rgba(0,0,0,0.35)] transition-transform duration-200 ease-out hover:-translate-y-1.5 hover:shadow-[0_10px_28px_rgba(0,0,0,0.5)]"
-            style={{ width: "clamp(96px, 12vw, 128px)" }}
-            role="img"
-            aria-label={`${card.rank} of ${suitName(card.suit)}`}
-        >
-            <div className="absolute inset-0 rounded-2xl bg-[radial-gradient(120%_80%_at_50%_10%,_rgba(255,255,255,0.95),_rgba(235,235,235,0.9))]" />
-            <div className="absolute left-2 top-2 text-[min(20px,4.2vw)] leading-none">
-                <span className={`block font-bold ${isRed ? 'text-red-600' : 'text-stone-900'}`}>{card.rank}</span>
-                <span className={`${isRed ? 'text-red-600' : 'text-stone-900'}`}>{card.suit}</span>
-            </div>
-            <div className="absolute bottom-2 right-2 rotate-180 text-[min(20px,4.2vw)] leading-none">
-                <span className={`block font-bold ${isRed ? 'text-red-600' : 'text-stone-900'}`}>{card.rank}</span>
-                <span className={`${isRed ? 'text-red-600' : 'text-stone-900'}`}>{card.suit}</span>
-            </div>
-            <div className="absolute inset-0 grid place-items-center">
-                <span className={`${isRed ? 'text-red-500' : 'text-stone-700'} opacity-80`} style={{ fontSize: 'min(64px, 12vw)' }}>
-                    {card.suit}
-                </span>
-            </div>
-            <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-black/5 to-transparent" />
-        </div>
-    );
-}
-
-function CardBack() {
-    return (
-        <div
-            className="relative aspect-[5/7] select-none rounded-2xl ring-1 ring-black/5 shadow-[0_6px_24px_rgba(0,0,0,0.35)]"
-            style={{ width: "clamp(96px, 12vw, 128px)" }}
-            aria-label="Card back"
-            role="img"
-        >
-            <div className="absolute inset-0 rounded-2xl bg-white" />
-            <div className="absolute inset-1 rounded-xl bg-emerald-900" />
-            <div className="absolute inset-2 overflow-hidden rounded-lg">
-                <div className="absolute inset-0 opacity-90"
-                    style={{
-                        backgroundImage:
-                            "repeating-linear-gradient(45deg, rgba(255,255,255,0.08) 0 8px, transparent 8px 16px), repeating-linear-gradient(-45deg, rgba(255,255,255,0.08) 0 8px, transparent 8px 16px)",
-                    }}
-                />
-                <div className="absolute inset-0 bg-[radial-gradient(120%_100%_at_50%_0%,_rgba(255,255,255,0.08),_transparent)]" />
-            </div>
-            <div className="absolute inset-0 grid place-items-center">
-                <div className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-sm tracking-wider text-white/90">
-                    ★★
-                </div>
             </div>
         </div>
     );
