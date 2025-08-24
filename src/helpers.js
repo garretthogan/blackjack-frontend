@@ -15,8 +15,7 @@ export function sortDeck(deck) {
   const rankIndex = Object.fromEntries(RANKS_ASC.map((r, i) => [r, i]));
   const suitIndex = Object.fromEntries(SUITS.map((s, i) => [s, i]));
   return deck.slice().sort((a, b) => {
-    if (suitIndex[a.suit] !== suitIndex[b.suit])
-      return suitIndex[a.suit] - suitIndex[b.suit];
+    if (suitIndex[a.suit] !== suitIndex[b.suit]) return suitIndex[a.suit] - suitIndex[b.suit];
     return rankIndex[a.rank] - rankIndex[b.rank];
   });
 }
@@ -95,6 +94,43 @@ export function evaluateBlackjackHand(hand) {
   }
 
   return { value: total, message: `Hand total: ${total}` };
+}
+
+export function makeShuffledDeck() {
+  // builds a fresh 52 and shuffles it
+  return shuffle(buildDeck());
+}
+
+export function cardValue(rank) {
+  if (rank === 'A') return 11;
+  if (['K', 'Q', 'J'].includes(rank)) return 10;
+  return parseInt(rank, 10);
+}
+
+export function handTotal(cards) {
+  // Aces start as 11, downgrade to 1 while busting
+  let total = 0;
+  let aces = 0;
+  for (const c of cards) {
+    if (c.rank === 'A') aces++;
+    total += cardValue(c.rank);
+  }
+  while (total > 21 && aces > 0) {
+    total -= 10;
+    aces--;
+  }
+  return total;
+}
+
+export function isStartingPair(cards) {
+  return cards.length === 2 && cards[0].rank === cards[1].rank;
+}
+
+export function analyzeBlackjackHand(cards) {
+  const total = handTotal(cards);
+  const isBlackjack = cards.length === 2 && cards.some(c => c.rank === 'A') && cards.some(c => ['10', 'J', 'Q', 'K'].includes(c.rank));
+  const isFiveCardCharlie = cards.length >= 5 && total <= 21;
+  return { total, isBlackjack, isFiveCardCharlie };
 }
 
 export const btnCls =
