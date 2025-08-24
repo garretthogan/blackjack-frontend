@@ -8,13 +8,10 @@ import { useNavigate } from 'react-router';
  * - Matches the grayscale wireframe structure
  */
 export default function LandingPage() {
-  const handleQuickPlay = () =>
-    alert('Quick Play: joining a low-stakes table...');
-  const handleChooseTable = () =>
-    alert('Open table picker modal (not implemented)');
+  const handleQuickPlay = () => alert('Quick Play: joining a low-stakes table...');
+  const handleChooseTable = () => alert('Open table picker modal (not implemented)');
   const handleSignIn = () => alert('Open sign-in (not implemented)');
-  const handlePlayTier = tier => () =>
-    alert(`Joining ${tier} stakes table...`);
+  const handlePlayTier = tier => () => alert(`Joining ${tier} stakes table...`);
 
   const navigate = useNavigate();
 
@@ -25,9 +22,7 @@ export default function LandingPage() {
         <div className="mx-auto flex max-w-6xl items-center justify-between p-4">
           <div className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-lg " aria-hidden />
-            <span className="font-semibold tracking-tight cursor-pointer">
-              Blackjack
-            </span>
+            <span className="font-semibold tracking-tight cursor-pointer">Blackjack</span>
           </div>
           <nav className="flex items-center gap-3 text-sm">
             <button

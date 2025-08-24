@@ -5,9 +5,7 @@ export default function SuitLegend({ title, cards, color }) {
         <span
           className={`inline-block h-2 w-2 rounded-full ${color.replace('text', 'bg')}`}
         />
-        <h3 className="text-sm font-semibold tracking-wide text-stone-200">
-          {title}
-        </h3>
+        <h3 className="text-sm font-semibold tracking-wide text-stone-200">{title}</h3>
         <span className="ml-auto text-xs text-stone-400 tabular-nums">
           {cards.length}
         </span>

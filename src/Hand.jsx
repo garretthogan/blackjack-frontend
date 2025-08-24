@@ -7,10 +7,7 @@ export default function Hand({ cards }) {
     <div style={{ display: 'inline-block' }}>
       {cards.map(card => {
         return (
-          <div
-            key={`hand-${card.rank}-${card.suit}`}
-            style={{ display: 'inline-block' }}
-          >
+          <div key={`hand-${card.rank}-${card.suit}`} style={{ display: 'inline-block' }}>
             <Card card={card} />
           </div>
         );

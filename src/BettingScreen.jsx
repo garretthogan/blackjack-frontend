@@ -7,6 +7,16 @@ import { useNavigate } from 'react-router';
  * - The betting "circle" is now a <div role="button">, so the +/- controls
  *   can remain real <button>s inside without violating HTML rules.
  */
+const containerStyle = {
+  minHeight: '100vh',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  color: '#eee',
+  padding: '24px',
+  fontFamily: 'sans-serif',
+};
 export default function BettingScreen({
   min = 5,
   max = 500,
@@ -30,15 +40,9 @@ export default function BettingScreen({
   }, []);
 
   const addChip = (d, n = 1) =>
-    setChipCounts(prev => ({
-      ...prev,
-      [d]: Math.max(0, (prev[d] || 0) + n),
-    }));
+    setChipCounts(prev => ({ ...prev, [d]: Math.max(0, (prev[d] || 0) + n) }));
   const removeChip = (d, n = 1) =>
-    setChipCounts(prev => ({
-      ...prev,
-      [d]: Math.max(0, (prev[d] || 0) - n),
-    }));
+    setChipCounts(prev => ({ ...prev, [d]: Math.max(0, (prev[d] || 0) - n) }));
   const clearBets = () => setChipCounts({});
 
   const navigate = useNavigate();
@@ -79,30 +83,10 @@ export default function BettingScreen({
   };
 
   return (
-    <div
-      ref={rootRef}
-      tabIndex={-1}
-      onKeyDown={onKeyDown}
-      className="min-h-screen outline-none"
-    >
-      {/* Header */}
-      <header className="border-b border-zinc-200 backdrop-blur">
-        <div className="mx-auto flex max-w-5xl items-center justify-between p-4">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg" aria-hidden />
-            <span className="font-semibold tracking-tight">Blackjack</span>
-          </div>
-          <div className="text-sm">
-            Table Limits: ${min}–${max}
-          </div>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-5xl px-4 py-8">
+    <div ref={rootRef} tabIndex={-1} onKeyDown={onKeyDown} style={containerStyle}>
+      <div className="mx-auto max-w-5xl px-4 py-8">
         <section className="rounded-2xl border border-zinc-200 p-6 shadow-sm">
-          <div className="mb-6 text-sm font-medium tracking-tight">
-            Dealer
-          </div>
+          <div className="mb-6 text-sm font-medium tracking-tight">Dealer</div>
 
           {/* Betting spot */}
           <div className="flex flex-col items-center gap-4 py-8">
@@ -122,18 +106,14 @@ export default function BettingScreen({
               {/* Bet total in center */}
               <div className="absolute inset-0 grid place-items-center">
                 <div className="text-center">
-                  <div className="text-xs uppercase tracking-wide">
-                    Current Bet
-                  </div>
+                  <div className="text-xs uppercase tracking-wide">Current Bet</div>
                   <div
                     className={`text-2xl font-bold ${withinLimits ? 'text-zinc-900' : 'text-red-600'}`}
                   >
                     ${total}
                   </div>
                   {!withinLimits && (
-                    <div className="mt-1 text-xs text-red-600">
-                      Out of limits
-                    </div>
+                    <div className="mt-1 text-xs text-red-600">Out of limits</div>
                   )}
                 </div>
               </div>
@@ -169,8 +149,7 @@ export default function BettingScreen({
             <div className="text-xs">
               {denoms.map(d => (
                 <span key={d} className="mr-3">
-                  ${d}:{' '}
-                  <span className="font-medium">{chipCounts[d] || 0}</span>
+                  ${d}: <span className="font-medium">{chipCounts[d] || 0}</span>
                 </span>
               ))}
             </div>
@@ -226,15 +205,15 @@ export default function BettingScreen({
           </div>
 
           <p className="mt-6 text-center text-xs">
-            <kbd>1–{Math.min(9, denoms.length)}</kbd> select chip ·{' '}
-            <kbd>←/→</kbd> cycle · <kbd>+</kbd>/<kbd>-</kbd> adjust ·{' '}
-            <kbd>Enter</kbd> deal · <kbd>Backspace</kbd> clear
+            <kbd>1–{Math.min(9, denoms.length)}</kbd> select chip · <kbd>←/→</kbd> cycle ·{' '}
+            <kbd>+</kbd>/<kbd>-</kbd> adjust · <kbd>Enter</kbd> deal ·{' '}
+            <kbd>Backspace</kbd> clear
           </p>
           <p className="mt-2 text-center text-xs">
             Table limits: ${min}–${max}
           </p>
         </section>
-      </main>
+      </div>
     </div>
   );
 }
