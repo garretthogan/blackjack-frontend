@@ -1,4 +1,3 @@
-// DeckSelect.jsx
 import React from 'react';
 import { useNavigate } from 'react-router';
 
@@ -22,16 +21,8 @@ export default function DeckSelect() {
             description="A standard 52 card deck. So it would seem..."
             onSelect={() => handleSelect('standard')}
           />
-          <DeckCard
-            title="Coming soon..."
-            description="..."
-            onSelect={() => handleSelect('face-heavy')}
-          />
-          <DeckCard
-            title="Coming soon..."
-            description="..."
-            onSelect={() => handleSelect('ace-stacker')}
-          />
+          <DeckCard title="Coming soon..." description="..." onSelect={() => handleSelect('face-heavy')} />
+          <DeckCard title="Coming soon..." description="..." onSelect={() => handleSelect('ace-stacker')} />
         </div>
 
         <button style={backButtonStyle} onClick={() => navigate('/')}>

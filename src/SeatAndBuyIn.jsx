@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 /**
@@ -94,9 +94,7 @@ export default function SeatAndBuyIn() {
               max={table.max}
               step={25}
               value={amount}
-              onChange={e =>
-                setAmount(e.target.value === '' ? '' : Number(e.target.value))
-              }
+              onChange={e => setAmount(e.target.value === '' ? '' : Number(e.target.value))}
               className="rounded-xl border border-zinc-300 px-3 py-2 text-sm outline-none ring-zinc-400 focus-visible:ring-2"
               placeholder={`${table.min}`}
             />
@@ -115,9 +113,7 @@ export default function SeatAndBuyIn() {
               disabled={!canConfirm}
               className={
                 'w-full rounded-2xl px-5 py-3 text-sm font-medium shadow-sm transition focus:outline-none focus-visible:ring-2 ' +
-                (canConfirm
-                  ? 'text-white focus-visible:ring-zinc-400 border border-zinc-200'
-                  : 'cursor-not-allowed border border-zinc-200')
+                (canConfirm ? 'text-white focus-visible:ring-zinc-400 border border-zinc-200' : 'cursor-not-allowed border border-zinc-200')
               }
             >
               Start Run

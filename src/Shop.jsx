@@ -1,5 +1,4 @@
-// Shop.jsx
-import React from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router';
 
 /** Minimal mock catalog pools */
@@ -29,12 +28,12 @@ export default function Shop() {
   const navigate = useNavigate();
 
   // state
-  const [tab, setTab] = React.useState('Hexes');
-  const [credits, setCredits] = React.useState(1200);
-  const [rerollCost, setRerollCost] = React.useState(50);
-  const [discount, setDiscount] = React.useState(0); // % discount from voucher
-  const [items, setItems] = React.useState(() => rollShop(tab));
-  const [owned, setOwned] = React.useState({}); // id -> true
+  const [tab, setTab] = useState('Hexes');
+  const [credits, setCredits] = useState(1200);
+  const [rerollCost, setRerollCost] = useState(50);
+  const [discount, setDiscount] = useState(0); // % discount from voucher
+  const [items, setItems] = useState(() => rollShop(tab));
+  const [owned, setOwned] = useState({}); // id -> true
 
   function rollShop(whichTab) {
     // Simple random selection of up to 6 items from the pool (no dupes)
@@ -77,9 +76,7 @@ export default function Shop() {
 
       <div style={topBarStyle}>
         <div style={currencyStyle}>Winnings: {credits}</div>
-        <div style={discountStyle}>
-          {discount > 0 ? `Discount: -${Math.round(discount * 100)}%` : 'No Discount'}
-        </div>
+        <div style={discountStyle}>{discount > 0 ? `Discount: -${Math.round(discount * 100)}%` : 'No Discount'}</div>
       </div>
 
       <div style={tabsStyle} role="tablist" aria-label="Shop categories">
@@ -114,11 +111,7 @@ export default function Shop() {
       </div>
 
       <div style={bottomBarStyle}>
-        <button
-          style={btnStyle}
-          onClick={reroll}
-          disabled={credits < effectiveCost(rerollCost)}
-        >
+        <button style={btnStyle} onClick={reroll} disabled={credits < effectiveCost(rerollCost)}>
           Reroll ({effectiveCost(rerollCost)})
         </button>
         <button style={btnStyle} onClick={() => navigate('/run-hub')}>
@@ -143,11 +136,7 @@ function ItemCard({ item, owned, effectiveCost, canBuy, onBuy }) {
         <span style={priceStyle}>{owned ? 'Owned' : effectiveCost}</span>
       </div>
       <p style={cardDescStyle}>{item.desc}</p>
-      <button
-        style={{ ...buyBtnStyle, opacity: canBuy ? 1 : 0.5 }}
-        onClick={onBuy}
-        disabled={!canBuy || owned}
-      >
+      <button style={{ ...buyBtnStyle, opacity: canBuy ? 1 : 0.5 }} onClick={onBuy} disabled={!canBuy || owned}>
         {owned ? 'Purchased' : 'Buy'}
       </button>
     </div>
