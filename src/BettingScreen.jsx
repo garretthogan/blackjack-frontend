@@ -30,9 +30,15 @@ export default function BettingScreen({
   }, []);
 
   const addChip = (d, n = 1) =>
-    setChipCounts(prev => ({ ...prev, [d]: Math.max(0, (prev[d] || 0) + n) }));
+    setChipCounts(prev => ({
+      ...prev,
+      [d]: Math.max(0, (prev[d] || 0) + n),
+    }));
   const removeChip = (d, n = 1) =>
-    setChipCounts(prev => ({ ...prev, [d]: Math.max(0, (prev[d] || 0) - n) }));
+    setChipCounts(prev => ({
+      ...prev,
+      [d]: Math.max(0, (prev[d] || 0) - n),
+    }));
   const clearBets = () => setChipCounts({});
 
   const navigate = useNavigate();
@@ -94,7 +100,9 @@ export default function BettingScreen({
 
       <main className="mx-auto max-w-5xl px-4 py-8">
         <section className="rounded-2xl border border-zinc-200 p-6 shadow-sm">
-          <div className="mb-6 text-sm font-medium tracking-tight">Dealer</div>
+          <div className="mb-6 text-sm font-medium tracking-tight">
+            Dealer
+          </div>
 
           {/* Betting spot */}
           <div className="flex flex-col items-center gap-4 py-8">

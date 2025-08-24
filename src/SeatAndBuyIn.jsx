@@ -67,7 +67,9 @@ export default function SeatAndBuyIn() {
       <main className="mx-auto grid max-w-5xl gap-8 px-4 py-8 md:grid-cols-2">
         {/* Table / Seats */}
         <section className="rounded-2xl border border-zinc-200 p-6 shadow-sm">
-          <div className="mb-4 text-sm font-medium tracking-tight">Dealer</div>
+          <div className="mb-4 text-sm font-medium tracking-tight">
+            Dealer
+          </div>
           <div className="relative mx-auto mb-6 h-1 w-full rounded" />
 
           <div className="grid grid-cols-5 gap-4">
@@ -148,7 +150,9 @@ export default function SeatAndBuyIn() {
               step={25}
               value={amount}
               onChange={e =>
-                setAmount(e.target.value === '' ? '' : Number(e.target.value))
+                setAmount(
+                  e.target.value === '' ? '' : Number(e.target.value)
+                )
               }
               className="rounded-xl border border-zinc-300 px-3 py-2 text-sm outline-none ring-zinc-400 focus-visible:ring-2"
               placeholder={`${table.min}`}

@@ -4,7 +4,11 @@ export default function Controls({ drawOne, resetDeck, disabled }) {
   return (
     <div>
       <div className="px-2" style={{ display: 'inline-block' }}>
-        <button onClick={drawOne} className={btnAccent} disabled={disabled}>
+        <button
+          onClick={drawOne}
+          className={btnAccent}
+          disabled={disabled}
+        >
           Hit (Draw)
         </button>
       </div>

@@ -1,5 +1,10 @@
 import { useState } from 'react';
-import { buildDeck, evaluateBlackjackHand, shuffle, sortDeck } from './helpers';
+import {
+  buildDeck,
+  evaluateBlackjackHand,
+  shuffle,
+  sortDeck,
+} from './helpers';
 import StackedDeck from './StackedDeck';
 import GridDeck from './GridDeck';
 import Hand from './Hand';

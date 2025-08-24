@@ -13,7 +13,8 @@ export default function LandingPage() {
   const handleChooseTable = () =>
     alert('Open table picker modal (not implemented)');
   const handleSignIn = () => alert('Open sign-in (not implemented)');
-  const handlePlayTier = tier => () => alert(`Joining ${tier} stakes table...`);
+  const handlePlayTier = tier => () =>
+    alert(`Joining ${tier} stakes table...`);
 
   const navigate = useNavigate();
 

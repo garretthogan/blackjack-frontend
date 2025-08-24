@@ -6,6 +6,6 @@ export default {
   trailingComma: 'es5',
   bracketSpacing: true,
   arrowParens: 'avoid',
-  printWidth: 140,
+  printWidth: 90,
   proseWrap: 'preserve',
 };
