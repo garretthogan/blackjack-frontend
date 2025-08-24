@@ -1,21 +1,17 @@
-// DeckViewer.jsx
-import React from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { shuffle, suitName } from './helpers';
 
 export default function DeckViewer() {
   const navigate = useNavigate();
-  const [deck, setDeck] = React.useState(() => generateMockDeck());
-  const [jokers] = React.useState(() => generateMockJokers());
-  const [query, setQuery] = React.useState('');
+  const [deck, setDeck] = useState(() => generateMockDeck());
+  const [jokers] = useState(() => generateMockJokers());
+  const [query, setQuery] = useState('');
 
   const filteredDeck = deck.filter(c => {
     const q = query.trim().toLowerCase();
     if (!q) return true;
-    return (
-      c.rank.toLowerCase().includes(q) ||
-      c.suitName.toLowerCase().includes(q) ||
-      (c.rank + c.suit).toLowerCase().includes(q)
-    );
+    return c.rank.toLowerCase().includes(q) || c.suitName.toLowerCase().includes(q) || (c.rank + c.suit).toLowerCase().includes(q);
   });
 
   const sortByRank = () => {
@@ -23,15 +19,9 @@ export default function DeckViewer() {
     setDeck(d => [...d].sort((a, b) => order.indexOf(a.rank) - order.indexOf(b.rank)));
   };
 
-  const shuffle = () => {
-    setDeck(d => {
-      const a = [...d];
-      for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
-      return a;
-    });
+  // keep the same function name, but delegate to helpers.shuffle
+  const shuffleDeck = () => {
+    setDeck(d => shuffle(d));
   };
 
   return (
@@ -44,16 +34,11 @@ export default function DeckViewer() {
       </div>
 
       <div style={controlsStyle}>
-        <input
-          placeholder="Filter (e.g., A, hearts, 10♣)"
-          value={query}
-          onChange={e => setQuery(e.target.value)}
-          style={inputStyle}
-        />
+        <input placeholder="Filter (e.g., A, hearts, 10♣)" value={query} onChange={e => setQuery(e.target.value)} style={inputStyle} />
         <button style={btnStyle} onClick={sortByRank}>
           Sort by Rank
         </button>
-        <button style={btnStyle} onClick={shuffle}>
+        <button style={btnStyle} onClick={shuffleDeck}>
           Shuffle
         </button>
         <button style={btnStyle} onClick={() => setQuery('')}>
@@ -69,9 +54,7 @@ export default function DeckViewer() {
             {filteredDeck.map(c => (
               <CardRow key={c.id} card={c} />
             ))}
-            {filteredDeck.length === 0 && (
-              <div style={{ opacity: 0.8, padding: 12 }}>No cards match your filter.</div>
-            )}
+            {filteredDeck.length === 0 && <div style={{ opacity: 0.8, padding: 12 }}>No cards match your filter.</div>}
           </div>
         </section>
 
@@ -125,17 +108,17 @@ function CardRow({ card }) {
 function generateMockDeck() {
   // smaller sample for the viewer (could be the whole 52 later)
   const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
-  const suits = [
-    { s: '♠', name: 'Spades' },
-    { s: '♥', name: 'Hearts' },
-    { s: '♦', name: 'Diamonds' },
-    { s: '♣', name: 'Clubs' },
-  ];
+  const suits = ['♠', '♥', '♦', '♣'];
   const sample = [];
   for (let i = 0; i < 16; i++) {
     const r = ranks[(i * 3) % ranks.length];
-    const su = suits[(i * 5) % suits.length];
-    sample.push({ id: `c_${i}_${r}${su.s}`, rank: r, suit: su.s, suitName: su.name });
+    const s = suits[(i * 5) % suits.length];
+    sample.push({
+      id: `c_${i}_${r}${s}`,
+      rank: r,
+      suit: s,
+      suitName: suitName(s),
+    });
   }
   return sample;
 }

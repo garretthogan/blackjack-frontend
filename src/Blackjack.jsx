@@ -1,81 +1,29 @@
 // Blackjack.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import Card from './Card';
 import Hand from './Hand';
 
+// Import the SAME-NAMED helpers moved to helpers.js
+import { createDeck, calcTotal, isPair, checkHandType } from './helpers';
+
 export default function Blackjack() {
   const navigate = useNavigate();
 
-  // --- helpers ---
-  const createDeck = () => {
-    const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
-    const suits = ['♠', '♥', '♦', '♣'];
-    const cards = [];
-    for (const r of ranks) {
-      for (const s of suits) {
-        cards.push({ rank: r, suit: s });
-      }
-    }
-    return shuffle(cards);
-  };
-
-  const shuffle = arr => {
-    const a = arr.slice();
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-  };
-
-  const cardValue = rank => {
-    if (rank === 'A') return 11;
-    if (['K', 'Q', 'J'].includes(rank)) return 10;
-    return parseInt(rank, 10);
-  };
-
-  const calcTotal = hand => {
-    // Count Aces as 11 then downgrade to 1 while > 21
-    let total = 0;
-    let aces = 0;
-    for (const c of hand) {
-      if (c.rank === 'A') aces++;
-      total += cardValue(c.rank);
-    }
-    while (total > 21 && aces > 0) {
-      total -= 10;
-      aces--;
-    }
-    return total;
-  };
-
-  const isPair = hand => hand.length === 2 && hand[0].rank === hand[1].rank;
-
-  const checkHandType = hand => {
-    const total = calcTotal(hand);
-    const blackjack =
-      hand.length === 2 &&
-      hand.some(c => c.rank === 'A') &&
-      hand.some(c => ['10', 'J', 'Q', 'K'].includes(c.rank));
-    const fiveCardCharlie = hand.length >= 5 && total <= 21;
-    return { total, blackjack, fiveCardCharlie };
-  };
-
   // --- state ---
-  const [deck, setDeck] = React.useState(() => createDeck());
-  const [hand, setHand] = React.useState([]);
+  const [deck, setDeck] = useState(() => createDeck());
+  const [hand, setHand] = useState([]);
   const [dealerHand, setDealerHand] = useState([]);
-  const [stood, setStood] = React.useState(false);
-  const [message, setMessage] = React.useState('');
+  const [stood, setStood] = useState(false);
+  const [message, setMessage] = useState('');
 
   // deal 2 on mount
-  React.useEffect(() => {
+  useEffect(() => {
     startNewHand();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const drawOne = React.useCallback(() => {
+  const drawOne = useCallback(() => {
     setDeck(d => {
       if (d.length === 0) return d;
       const next = d[d.length - 1];
@@ -163,20 +111,14 @@ export default function Blackjack() {
         <button style={btnStyle} onClick={onDouble} disabled={stood || hand.length === 0}>
           Double
         </button>
-        <button
-          style={{ ...btnStyle, opacity: canSplit ? 1 : 0.5 }}
-          onClick={onSplit}
-          disabled={!canSplit}
-        >
+        <button style={{ ...btnStyle, opacity: canSplit ? 1 : 0.5 }} onClick={onSplit} disabled={!canSplit}>
           Split
         </button>
       </div>
       {(stood || isBust) && (
         <div style={resultBoxStyle}>
           <p style={{ margin: 0 }}>{message}</p>
-          <div
-            style={{ marginTop: 12, display: 'flex', gap: 8, justifyContent: 'center' }}
-          >
+          <div style={{ marginTop: 12, display: 'flex', gap: 8, justifyContent: 'center' }}>
             <button style={btnStyle} onClick={startNewHand}>
               Next Hand
             </button>
@@ -201,7 +143,7 @@ export default function Blackjack() {
   );
 }
 
-/* Styles */
+/* Styles (unchanged) */
 const containerStyle = {
   minHeight: '100vh',
   display: 'flex',

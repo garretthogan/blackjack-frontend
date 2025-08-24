@@ -15,8 +15,7 @@ export function sortDeck(deck) {
   const rankIndex = Object.fromEntries(RANKS_ASC.map((r, i) => [r, i]));
   const suitIndex = Object.fromEntries(SUITS.map((s, i) => [s, i]));
   return deck.slice().sort((a, b) => {
-    if (suitIndex[a.suit] !== suitIndex[b.suit])
-      return suitIndex[a.suit] - suitIndex[b.suit];
+    if (suitIndex[a.suit] !== suitIndex[b.suit]) return suitIndex[a.suit] - suitIndex[b.suit];
     return rankIndex[a.rank] - rankIndex[b.rank];
   });
 }
@@ -28,6 +27,41 @@ export function shuffle(arr) {
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
+}
+
+export function createDeck() {
+  return shuffle(buildDeck());
+}
+
+export function cardValue(rank) {
+  if (rank === 'A') return 11;
+  if (['K', 'Q', 'J'].includes(rank)) return 10;
+  return parseInt(rank, 10);
+}
+
+export function calcTotal(hand) {
+  let total = 0;
+  let aces = 0;
+  for (const c of hand) {
+    if (c.rank === 'A') aces++;
+    total += cardValue(c.rank);
+  }
+  while (total > 21 && aces > 0) {
+    total -= 10;
+    aces--;
+  }
+  return total;
+}
+
+export function isPair(hand) {
+  return hand.length === 2 && hand[0].rank === hand[1].rank;
+}
+
+export function checkHandType(hand) {
+  const total = calcTotal(hand);
+  const blackjack = hand.length === 2 && hand.some(c => c.rank === 'A') && hand.some(c => ['10', 'J', 'Q', 'K'].includes(c.rank));
+  const fiveCardCharlie = hand.length >= 5 && total <= 21;
+  return { total, blackjack, fiveCardCharlie };
 }
 
 export function suitName(s) {

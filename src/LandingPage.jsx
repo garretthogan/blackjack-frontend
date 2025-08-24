@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate } from 'react-router';
 
 /**
@@ -25,10 +24,7 @@ export default function LandingPage() {
             <span className="font-semibold tracking-tight cursor-pointer">Blackjack</span>
           </div>
           <nav className="flex items-center gap-3 text-sm">
-            <button
-              className="rounded-lg border border-zinc-300 px-3 py-1.5 hover:bg-zinc-100"
-              onClick={() => alert('Open settings')}
-            >
+            <button className="rounded-lg border border-zinc-300 px-3 py-1.5 hover:bg-zinc-100" onClick={() => alert('Open settings')}>
               Settings
             </button>
             <button
@@ -43,12 +39,8 @@ export default function LandingPage() {
 
       {/* Hero */}
       <section className="mx-auto max-w-4xl px-4 py-12 sm:py-16">
-        <h1 className="text-center text-3xl font-extrabold tracking-tight sm:text-5xl">
-          ROGUELIKE BLACKJACK
-        </h1>
-        <p className="mx-auto mt-3 max-w-xl text-center ">
-          Jump in with Quick Play or choose a table that fits your stakes.
-        </p>
+        <h1 className="text-center text-3xl font-extrabold tracking-tight sm:text-5xl">ROGUELIKE BLACKJACK</h1>
+        <p className="mx-auto mt-3 max-w-xl text-center ">Jump in with Quick Play or choose a table that fits your stakes.</p>
 
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3 text-zinc-600">
           <button
