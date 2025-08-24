@@ -11,9 +11,7 @@ export default function Card({ card }) {
     >
       <div className="absolute inset-0 rounded-2xl bg-[radial-gradient(120%_80%_at_50%_10%,_rgba(255,255,255,0.95),_rgba(235,235,235,0.9))]" />
       <div className="absolute left-2 top-2 text-[min(20px,4.2vw)] leading-none">
-        <span
-          className={`block font-bold ${isRed ? 'text-red-600' : 'text-stone-900'}`}
-        >
+        <span className={`block font-bold ${isRed ? 'text-red-600' : 'text-stone-900'}`}>
           {card.rank}
         </span>
         <span className={`${isRed ? 'text-red-600' : 'text-stone-900'}`}>
@@ -21,9 +19,7 @@ export default function Card({ card }) {
         </span>
       </div>
       <div className="absolute bottom-2 right-2 rotate-180 text-[min(20px,4.2vw)] leading-none">
-        <span
-          className={`block font-bold ${isRed ? 'text-red-600' : 'text-stone-900'}`}
-        >
+        <span className={`block font-bold ${isRed ? 'text-red-600' : 'text-stone-900'}`}>
           {card.rank}
         </span>
         <span className={`${isRed ? 'text-red-600' : 'text-stone-900'}`}>

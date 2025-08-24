@@ -19,9 +19,7 @@ const router = createBrowserRouter([
   { path: '/deck-select', element: <DeckSelect /> },
   { path: '/run-hub', element: <RunHub /> },
   { path: '/shop', element: <Shop /> },
-  { path: '/deck-viewer', element: <DeckViewer /> }
+  { path: '/deck-viewer', element: <DeckViewer /> },
 ]);
 
-createRoot(document.getElementById('root')).render(
-  <RouterProvider router={router} />
-);
+createRoot(document.getElementById('root')).render(<RouterProvider router={router} />);
