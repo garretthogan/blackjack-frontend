@@ -1,12 +1,8 @@
+// src/SeatAndBuyIn.jsx
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
+import { useUser } from './context/UserContext';
 
-/**
- * Seat & Buy-In Screen (React + Tailwind)
- * - Pick a seat, choose a buy-in (presets or custom), then confirm.
- * - Keyboard-accessible and responsive.
- * - Drop-in component; replace alert handlers with your navigation/state.
- */
 const containerStyle = {
   minHeight: '100vh',
   display: 'flex',
@@ -19,106 +15,90 @@ const containerStyle = {
 };
 
 export default function SeatAndBuyIn() {
-  // Table config (could come from props/api)
-  const table = {
-    id: 't-low-1',
-    min: 25,
-    max: 2000,
-    seats: 5,
-    presets: [100, 500, 1000],
-  };
+  const table = { min: 25, max: 2000, presets: [25, 100, 250, 500, 1000] };
 
-  const [amount, setAmount] = useState('');
-  const [customMode, setCustomMode] = useState(false);
-
+  const [buyIn, setBuyIn] = useState(0);
   const navigate = useNavigate();
+  const { setStartingBank } = useUser();
 
-  const isAmountValid = useMemo(() => {
-    if (amount === '') return false;
-    return amount >= table.min && amount <= table.max;
-  }, [amount, table.min, table.max]);
+  const withinLimits = useMemo(
+    () => buyIn >= table.min && buyIn <= table.max,
+    [buyIn, table.min, table.max]
+  );
 
-  const canConfirm = isAmountValid;
+  const remainingRoom = Math.max(0, table.max - buyIn);
 
-  const handlePreset = v => {
-    setAmount(v);
-    setCustomMode(false);
-  };
+  const addBuyIn = amountToAdd =>
+    setBuyIn(prev => Math.min(table.max, prev + amountToAdd));
 
-  const handleConfirm = () => {
-    if (!canConfirm) return;
+  const clearBuyIn = () => setBuyIn(0);
+
+  const startRun = () => {
+    if (!withinLimits) return;
+    setStartingBank(buyIn);
     navigate('/run-hub');
   };
 
   return (
     <div style={containerStyle}>
       <div>
-        <section className="rounded-2xl border border-zinc-200 p-6 shadow-sm">
+        <section className="w-[520px] max-w-[92vw] rounded-2xl border border-zinc-200 p-6 shadow-sm">
           <h2 className="mb-4 text-base font-semibold tracking-tight">Buy-in</h2>
 
-          <div className="mb-4 flex flex-wrap gap-3">
-            {table.presets.map(v => (
-              <button
-                key={v}
-                onClick={() => handlePreset(v)}
-                className={
-                  'rounded-xl border px-4 py-2 text-sm shadow-sm transition focus:outline-none focus-visible:ring-2 ' +
-                  (amount === v ? 'border-zinc-900 ring-zinc-400' : 'border-zinc-300')
-                }
-                aria-pressed={amount === v}
-              >
-                ${v}
-              </button>
-            ))}
+          <div className="mb-3 flex flex-wrap gap-3">
+            {table.presets.map(preset => {
+              const disabled = preset > remainingRoom;
+              return (
+                <button
+                  key={preset}
+                  onClick={() => addBuyIn(preset)}
+                  disabled={disabled}
+                  className={
+                    'rounded-xl border px-4 py-2 text-sm shadow-sm transition focus:outline-none focus-visible:ring-2 ' +
+                    (disabled
+                      ? 'cursor-not-allowed opacity-40 border-zinc-300'
+                      : 'border-zinc-300 hover:bg-white/10')
+                  }
+                >
+                  +${preset}
+                </button>
+              );
+            })}
+          </div>
+
+          <p className="mb-2 text-xs opacity-80">
+            Min ${table.min}, Max ${table.max}
+          </p>
+
+          <div className="mb-4 flex items-center rounded-xl border border-zinc-300 px-3 py-2">
+            <span className="text-sm font-medium">Current Buy-in: ${buyIn}</span>
             <button
-              onClick={() => setCustomMode(true)}
+              onClick={clearBuyIn}
+              disabled={!buyIn}
               className={
-                'rounded-xl border px-4 py-2 text-sm shadow-sm transition focus:outline-none focus-visible:ring-2 ' +
-                (customMode ? 'border-zinc-900 ring-zinc-400' : 'border-zinc-300')
+                'ml-auto h-8 w-8 rounded-lg border text-sm font-semibold shadow-sm focus:outline-none focus-visible:ring-2 ' +
+                (!buyIn
+                  ? 'cursor-not-allowed opacity-40 border-zinc-300'
+                  : 'border-zinc-300 hover:bg-white/10')
               }
-              aria-pressed={customMode}
+              title="Clear"
             >
-              Custom
+              ✕
             </button>
           </div>
 
-          {/* Custom input */}
-          <div className="grid gap-2 sm:max-w-xs">
-            <label htmlFor="amount" className="text-xs font-medium">
-              Amount (Min ${table.min}, Max ${table.max})
-            </label>
-            <input
-              id="amount"
-              type="number"
-              min={table.min}
-              max={table.max}
-              step={25}
-              value={amount}
-              onChange={e => setAmount(e.target.value === '' ? '' : Number(e.target.value))}
-              className="rounded-xl border border-zinc-300 px-3 py-2 text-sm outline-none ring-zinc-400 focus-visible:ring-2"
-              placeholder={`${table.min}`}
-            />
-            <p className="h-5 text-xs">
-              {amount === ''
-                ? 'Choose a preset or enter a custom amount.'
-                : isAmountValid
-                  ? 'Looks good.'
-                  : 'Out of limits — adjust amount.'}
-            </p>
-          </div>
-
-          <div className="mt-6">
-            <button
-              onClick={handleConfirm}
-              disabled={!canConfirm}
-              className={
-                'w-full rounded-2xl px-5 py-3 text-sm font-medium shadow-sm transition focus:outline-none focus-visible:ring-2 ' +
-                (canConfirm ? 'text-white focus-visible:ring-zinc-400 border border-zinc-200' : 'cursor-not-allowed border border-zinc-200')
-              }
-            >
-              Start Run
-            </button>
-          </div>
+          <button
+            onClick={startRun}
+            disabled={!withinLimits}
+            className={
+              'w-full rounded-2xl px-5 py-3 text-sm font-medium shadow-sm transition focus:outline-none focus-visible:ring-2 ' +
+              (withinLimits
+                ? 'text-white focus-visible:ring-zinc-400 border border-zinc-200'
+                : 'cursor-not-allowed border border-zinc-200')
+            }
+          >
+            Start Run
+          </button>
         </section>
       </div>
     </div>

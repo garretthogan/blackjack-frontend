@@ -4,20 +4,25 @@ export default function RunHub() {
   const navigate = useNavigate();
 
   return (
-    <div style={containerStyle}>
-      <div className="rounded-2xl border border-zinc-200 p-6">
-        <h1 style={titleStyle}>Run Hub</h1>
-        <p style={goalStyle}>Current Blind Goal: 600 winnings in 3 hands</p>
+    <div style={pageContainerStyle}>
+      <div style={cardStyle}>
+        <h1 style={headingStyle}>Run Hub</h1>
+        <p style={subheadingStyle}>Current Blind Goal: 600 winnings in 3 hands</p>
 
-        <div style={actionGridStyle}>
-          <ActionButton label="Play Hand" onClick={() => navigate('/bet')} />
+        <div style={primaryActionsGridStyle}>
+          <ActionButton label="Play Hand" onClick={() => navigate('/blackjack')} />
           <ActionButton label="Shop" onClick={() => navigate('/shop')} />
           <ActionButton label="View Deck" onClick={() => navigate('/deck-viewer')} />
         </div>
 
-        <button style={backButtonStyle} onClick={() => navigate('/')}>
-          Back to Menu
-        </button>
+        <div style={footerGridStyle}>
+          <button style={secondaryButtonStyle} onClick={() => navigate('/')}>
+            Back to Menu
+          </button>
+          <button style={secondaryButtonStyle} onClick={() => navigate('/seat-buy-in')}>
+            Change Starting Bank
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -25,55 +30,64 @@ export default function RunHub() {
 
 function ActionButton({ label, onClick }) {
   return (
-    <button style={actionButtonStyle} onClick={onClick}>
+    <button style={primaryButtonStyle} onClick={onClick}>
       {label}
     </button>
   );
 }
 
-/* Inline styles */
-const containerStyle = {
+const pageContainerStyle = {
   minHeight: '100vh',
   display: 'flex',
-  flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
+  padding: 24,
   color: '#eee',
-  padding: '24px',
   fontFamily: 'sans-serif',
 };
 
-const titleStyle = { marginBottom: '8px', fontSize: '28px' };
-
-const goalStyle = {
-  marginBottom: '24px',
-  fontSize: '16px',
-  opacity: 0.85,
+const cardStyle = {
+  width: 'min(560px, 92vw)',
+  border: '1px solid',
+  borderRadius: 16,
+  padding: 24,
 };
 
-const actionGridStyle = {
+const headingStyle = { margin: 0, marginBottom: 8, fontSize: 28 };
+
+const subheadingStyle = { margin: 0, marginBottom: 20, fontSize: 16, opacity: 0.85 };
+
+const primaryActionsGridStyle = {
   display: 'grid',
-  gap: '16px',
+  gridTemplateColumns: '1fr',
+  gap: 14,
   width: '100%',
-  maxWidth: '320px',
-  marginBottom: '24px',
+  marginBottom: 18,
 };
 
-const actionButtonStyle = {
+const primaryButtonStyle = {
+  width: '100%',
   padding: '14px 20px',
-  borderRadius: '10px',
-  border: '1px solid ',
+  borderRadius: 10,
+  border: '1px solid',
   color: '#eee',
-  fontSize: '16px',
+  fontSize: 16,
   cursor: 'pointer',
-  transition: 'transform 0.15s ease, box-shadow 0.15s ease',
 };
 
-const backButtonStyle = {
-  marginTop: '12px',
-  padding: '12px 24px',
-  borderRadius: '8px',
-  border: '1px solid ',
+const footerGridStyle = {
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr',
+  gap: 14,
+  width: '100%',
+};
+
+const secondaryButtonStyle = {
+  width: '100%',
+  padding: '12px 20px',
+  borderRadius: 10,
+  border: '1px solid',
   color: '#eee',
+  fontSize: 16,
   cursor: 'pointer',
 };

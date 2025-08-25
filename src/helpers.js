@@ -3,11 +3,8 @@ const SUITS = ['♠', '♥', '♦', '♣'];
 
 export function buildDeck() {
   const deck = [];
-  for (const s of SUITS) {
-    for (const r of RANKS_ASC) {
-      deck.push({ id: `${r}${s}`, rank: r, suit: s });
-    }
-  }
+  for (const s of SUITS)
+    for (const r of RANKS_ASC) deck.push({ id: `${r}${s}`, rank: r, suit: s });
   return deck;
 }
 
@@ -15,7 +12,8 @@ export function sortDeck(deck) {
   const rankIndex = Object.fromEntries(RANKS_ASC.map((r, i) => [r, i]));
   const suitIndex = Object.fromEntries(SUITS.map((s, i) => [s, i]));
   return deck.slice().sort((a, b) => {
-    if (suitIndex[a.suit] !== suitIndex[b.suit]) return suitIndex[a.suit] - suitIndex[b.suit];
+    if (suitIndex[a.suit] !== suitIndex[b.suit])
+      return suitIndex[a.suit] - suitIndex[b.suit];
     return rankIndex[a.rank] - rankIndex[b.rank];
   });
 }
@@ -59,9 +57,73 @@ export function isPair(hand) {
 
 export function checkHandType(hand) {
   const total = calcTotal(hand);
-  const blackjack = hand.length === 2 && hand.some(c => c.rank === 'A') && hand.some(c => ['10', 'J', 'Q', 'K'].includes(c.rank));
+  const blackjack =
+    hand.length === 2 &&
+    hand.some(c => c.rank === 'A') &&
+    hand.some(c => ['10', 'J', 'Q', 'K'].includes(c.rank));
   const fiveCardCharlie = hand.length >= 5 && total <= 21;
   return { total, blackjack, fiveCardCharlie };
+}
+
+export function evaluateBlackjackHand(hand) {
+  if (hand.length === 0) return { value: 0, message: 'No cards in hand.' };
+  let total = 0;
+  let aces = 0;
+  for (const c of hand) {
+    if (c.rank === 'A') {
+      aces++;
+      total += 11;
+    } else if (['K', 'Q', 'J'].includes(c.rank)) {
+      total += 10;
+    } else {
+      total += parseInt(c.rank, 10);
+    }
+  }
+  while (total > 21 && aces > 0) {
+    total -= 10;
+    aces--;
+  }
+  if (hand.length === 2 && total === 21) return { value: total, message: 'Blackjack!' };
+  if (total === 21) return { value: total, message: '21!' };
+  if (total > 21) return { value: total, message: `Bust with ${total}` };
+  return { value: total, message: `Hand total: ${total}` };
+}
+
+export function evaluateOutcome(hand) {
+  const { total, blackjack, fiveCardCharlie } = checkHandType(hand);
+  if (total > 21) return { outcome: 'loss', message: `Busted with ${total}` };
+  if (blackjack) return { outcome: 'blackjack', message: 'Blackjack!' };
+  if (fiveCardCharlie)
+    return { outcome: 'charlie', message: `Five-Card Charlie (${total})` };
+  return { outcome: null, message: '' };
+}
+
+export function evaluateVsDealer(deck, dealerHand, playerHand) {
+  let nextDeck = deck.slice();
+  const d = dealerHand.slice();
+  while (calcTotal(d) < 17 && nextDeck.length) {
+    const next = nextDeck[nextDeck.length - 1];
+    nextDeck = nextDeck.slice(0, nextDeck.length - 1);
+    d.push(next);
+  }
+  const playerTotal = calcTotal(playerHand);
+  const dealerTotal = calcTotal(d);
+  let outcome = 'push';
+  let message = `Push at ${playerTotal}`;
+  if (playerTotal > 21) {
+    outcome = 'loss';
+    message = `Busted with ${playerTotal}`;
+  } else if (dealerTotal > 21) {
+    outcome = 'win';
+    message = `Dealer busts (${dealerTotal})`;
+  } else if (playerTotal > dealerTotal) {
+    outcome = 'win';
+    message = `Stood at ${playerTotal}`;
+  } else if (playerTotal < dealerTotal) {
+    outcome = 'loss';
+    message = `Stood at ${playerTotal}`;
+  }
+  return { outcome, message, nextDeck, dealerHand: d, playerTotal, dealerTotal };
 }
 
 export function suitName(s) {
@@ -84,7 +146,6 @@ export function jitter(seed, amplitude = 1) {
   return (x - Math.floor(x)) * 2 * amplitude - amplitude;
 }
 
-// Utility: unique by a computed key while preserving order
 export function uniqBy(arr, keyFn) {
   const seen = new Set();
   const out = [];
@@ -97,38 +158,11 @@ export function uniqBy(arr, keyFn) {
   return out;
 }
 
-export function evaluateBlackjackHand(hand) {
-  if (hand.length === 0) return { value: 0, message: 'No cards in hand.' };
-  // calculate values with aces flexible
-  let total = 0;
-  let aces = 0;
-  for (const c of hand) {
-    if (c.rank === 'A') {
-      aces++;
-      total += 11; // count aces high first
-    } else if (['K', 'Q', 'J'].includes(c.rank)) {
-      total += 10;
-    } else {
-      total += parseInt(c.rank, 10);
-    }
-  }
-  // adjust for aces if bust
-  while (total > 21 && aces > 0) {
-    total -= 10;
-    aces--;
-  }
-
-  if (hand.length === 2 && total === 21) {
-    return { value: total, message: 'Blackjack!' };
-  }
-  if (total === 21) {
-    return { value: total, message: '21!' };
-  }
-  if (total > 21) {
-    return { value: total, message: `Bust with ${total}` };
-  }
-
-  return { value: total, message: `Hand total: ${total}` };
+export function settlementReturn(bet, outcome, { multiplier = 1 } = {}) {
+  if (outcome === 'blackjack') return Math.floor(bet * 2.5);
+  if (outcome === 'win' || outcome === 'charlie') return bet * (1 + multiplier);
+  if (outcome === 'push') return bet * multiplier;
+  return 0;
 }
 
 export const btnCls =
