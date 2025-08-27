@@ -1,27 +1,87 @@
-// Blackjack.jsx
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router';
-import Card from './Card';
 import Hand from './Hand';
-
-// Import the SAME-NAMED helpers moved to helpers.js
-import { createDeck, calcTotal, isPair, checkHandType } from './helpers';
+import {
+  createDeck,
+  calcTotal,
+  isPair,
+  evaluateOutcome,
+  evaluateVsDealer,
+} from './helpers';
+import { useUser } from './context/UserContext';
+import UserHUD from './UserHUD';
+import RoundResultModal from './RoundResultModal';
+import BetModal from './BetModal';
 
 export default function Blackjack() {
-  const navigate = useNavigate();
+  return (
+    <>
+      <BlackjackInner />
+      <UserHUD />
+      <RoundResultModal />
+    </>
+  );
+}
 
-  // --- state ---
-  const [deck, setDeck] = useState(() => createDeck());
+function BlackjackInner() {
+  const navigate = useNavigate();
+  const { settleHand, tryDoubleDown, currentBet, resultOpen, setResultOpen } = useUser();
+
+  const [deck, setDeck] = useState([]);
   const [hand, setHand] = useState([]);
   const [dealerHand, setDealerHand] = useState([]);
   const [stood, setStood] = useState(false);
-  const [message, setMessage] = useState('');
+  const [resolved, setResolved] = useState(false);
+  const [evaluating, setEvaluating] = useState(false);
+  const [betOpen, setBetOpen] = useState(true);
 
-  // deal 2 on mount
+  const prevResultOpen = useRef(resultOpen);
+
   useEffect(() => {
-    startNewHand();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    resetForBet();
   }, []);
+
+  useEffect(() => {
+    if (evaluating || resolved || stood) return;
+    if (hand.length === 0) return;
+    const { outcome, message } = evaluateOutcome(hand);
+    if (outcome === 'loss' || outcome === 'blackjack' || outcome === 'charlie') {
+      setStood(true);
+      runEvaluation(outcome, message);
+    }
+  }, [hand, stood, resolved, evaluating]);
+
+  useEffect(() => {
+    const wasOpen = prevResultOpen.current;
+    prevResultOpen.current = resultOpen;
+    if (wasOpen && !resultOpen) resetForBet();
+  }, [resultOpen]);
+
+  const dealInitial = useCallback(() => {
+    const newDeck = createDeck();
+    const p1 = newDeck[newDeck.length - 1];
+    const p2 = newDeck[newDeck.length - 2];
+    const d1 = newDeck[newDeck.length - 3];
+    const d2 = newDeck[newDeck.length - 4];
+    setHand([p1, p2]);
+    setDealerHand([d1, d2]);
+    setDeck(newDeck.slice(0, newDeck.length - 4));
+  }, []);
+
+  const resetForBet = () => {
+    setDeck(createDeck());
+    setHand([]);
+    setDealerHand([]);
+    setStood(false);
+    setResolved(false);
+    setEvaluating(false);
+    setBetOpen(true);
+  };
+
+  const onBetConfirmed = () => {
+    setBetOpen(false);
+    dealInitial();
+  };
 
   const drawOne = useCallback(() => {
     setDeck(d => {
@@ -33,61 +93,60 @@ export default function Blackjack() {
     });
   }, []);
 
-  const startNewHand = () => {
-    const newDeck = createDeck();
-    setDeck(newDeck);
-    // player first
-    setHand([newDeck[newDeck.length - 1], newDeck[newDeck.length - 2]]);
-    // then dealer
-    setDealerHand([newDeck[newDeck.length - 3], newDeck[newDeck.length - 4]]);
-    setDeck(newDeck.slice(0, newDeck.length - 4));
-    setStood(false);
-    setMessage('');
-    // navigate("/bet");
+  const runEvaluation = (outcome, message, extra = {}) => {
+    const playerTotal = extra.playerTotal ?? calcTotal(hand);
+    const dealerTotal = extra.dealerTotal ?? calcTotal(dealerHand);
+    setEvaluating(true);
+    setTimeout(() => {
+      setEvaluating(false);
+      setResolved(true);
+      settleHand(outcome, message, { playerTotal, dealerTotal, ...extra });
+      setResultOpen(true);
+    }, 1000);
   };
 
-  // --- actions ---
   const onHit = () => {
-    if (stood) return;
+    if (stood || !currentBet) return;
     drawOne();
   };
 
   const onStand = () => {
-    if (stood) return;
+    if (stood || !currentBet) return;
+    const r = evaluateVsDealer(deck, dealerHand, hand);
+    setDeck(r.nextDeck);
+    setDealerHand(r.dealerHand);
     setStood(true);
-    const { total, blackjack, fiveCardCharlie } = checkHandType(hand);
-    if (total > 21) {
-      setMessage(`Bust with ${total}.`);
-    } else if (blackjack) {
-      setMessage('Blackjack! (Ace + 10-value)');
-    } else if (fiveCardCharlie) {
-      setMessage(`Five-Card Charlie (${total}).`);
-    } else {
-      setMessage(`Stood at ${total}.`);
-    }
+    runEvaluation(r.outcome, r.message, {
+      playerTotal: r.playerTotal,
+      dealerTotal: r.dealerTotal,
+    });
   };
 
   const onDouble = () => {
-    if (stood) return;
-    // Simple version: draw one, then stand automatically
+    if (stood || !currentBet) return;
+    const ok = tryDoubleDown();
+    if (!ok) return;
     drawOne();
-    // Let state update then evaluate after a tick
-    setTimeout(onStand, 0);
+    setTimeout(() => {
+      const r = evaluateVsDealer(deck, dealerHand, hand);
+      setDeck(r.nextDeck);
+      setDealerHand(r.dealerHand);
+      setStood(true);
+      runEvaluation(r.outcome, r.message, {
+        multiplier: 2,
+        playerTotal: r.playerTotal,
+        dealerTotal: r.dealerTotal,
+      });
+    }, 0);
   };
 
-  const onSplit = () => {
-    // Placeholder: disabled unless first two are a pair
-    alert('Split not implemented in this minimal demo.');
-  };
-
-  // compute derived
   const total = calcTotal(hand);
   const canSplit = isPair(hand) && !stood;
-  const isBust = total > 21;
 
   return (
     <div style={containerStyle}>
       <h1 style={titleStyle}>Blackjack</h1>
+      <BetModal open={betOpen} onConfirmed={onBetConfirmed} />
       Dealer
       <div style={handAreaStyle} aria-label="Player hand">
         <Hand cards={dealerHand} />
@@ -97,45 +156,32 @@ export default function Blackjack() {
       </div>
       Player
       <div style={topBarStyle}>
-        {/* Placeholder for boss/modifier info */}
         <div style={modifierStyle}>Modifier: —</div>
         <div style={totalStyle}>Total: {total}</div>
       </div>
       <div style={controlsStyle}>
-        <button style={btnStyle} onClick={onHit} disabled={stood || isBust}>
+        <button style={btnStyle} onClick={onHit} disabled={stood || !currentBet}>
           Hit
         </button>
-        <button style={btnStyle} onClick={onStand} disabled={stood}>
+        <button style={btnStyle} onClick={onStand} disabled={stood || !currentBet}>
           Stand
         </button>
-        <button style={btnStyle} onClick={onDouble} disabled={stood || hand.length === 0}>
+        <button
+          style={btnStyle}
+          onClick={onDouble}
+          disabled={stood || hand.length === 0 || !currentBet}
+        >
           Double
         </button>
-        <button style={{ ...btnStyle, opacity: canSplit ? 1 : 0.5 }} onClick={onSplit} disabled={!canSplit}>
+        <button
+          style={{ ...btnStyle, opacity: canSplit ? 1 : 0.5 }}
+          onClick={() => {}}
+          disabled={!canSplit || !currentBet}
+        >
           Split
         </button>
       </div>
-      {(stood || isBust) && (
-        <div style={resultBoxStyle}>
-          <p style={{ margin: 0 }}>{message}</p>
-          <div style={{ marginTop: 12, display: 'flex', gap: 8, justifyContent: 'center' }}>
-            <button style={btnStyle} onClick={startNewHand}>
-              Next Hand
-            </button>
-            <button style={btnStyle} onClick={() => navigate('/run-hub')}>
-              Return to Hub
-            </button>
-            <button
-              style={btnStyle}
-              onClick={() => {
-                navigate('/bet');
-              }}
-            >
-              Change Bet
-            </button>
-          </div>
-        </div>
-      )}
+      {evaluating && <div style={evaluatingBoxStyle}>Evaluating…</div>}
       <button style={backButtonStyle} onClick={() => navigate('/run-hub')}>
         Back to Hub
       </button>
@@ -143,7 +189,6 @@ export default function Blackjack() {
   );
 }
 
-/* Styles (unchanged) */
 const containerStyle = {
   minHeight: '100vh',
   display: 'flex',
@@ -208,13 +253,15 @@ const btnStyle = {
   cursor: 'pointer',
 };
 
-const resultBoxStyle = {
+const evaluatingBoxStyle = {
   marginTop: 8,
   padding: 12,
-  border: '1px solid ',
+  border: '1px dashed ',
   borderRadius: 10,
   textAlign: 'center',
   width: 'min(420px, 92vw)',
+  fontWeight: 700,
+  opacity: 0.9,
 };
 
 const backButtonStyle = {
@@ -224,25 +271,4 @@ const backButtonStyle = {
   border: '1px solid ',
   color: '#eee',
   cursor: 'pointer',
-};
-
-/* Card visuals */
-const cardStyle = {
-  width: 90,
-  height: 130,
-  borderRadius: 10,
-  border: '1px solid ',
-  color: '#111',
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'space-between',
-  padding: 8,
-};
-
-const cornerStyle = { fontWeight: 700, fontSize: 14 };
-const centerPipStyle = {
-  alignSelf: 'center',
-  fontSize: 20,
-  fontWeight: 700,
-  opacity: 0.9,
 };
