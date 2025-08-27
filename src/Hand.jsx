@@ -1,6 +1,6 @@
 import Card from './Card';
 
-export default function Hand({ cards }) {
+export default function Hand({ cards, isDealer = false }) {
   const n = cards.length;
 
   return (
@@ -13,7 +13,7 @@ export default function Hand({ cards }) {
         );
       })}
 
-      {n === 0 && (
+      {n === 0 && !isDealer && (
         <div className="grid h-full place-items-center text-emerald-300/70">
           Your hand is empty. Press “Hit (Draw)”.
         </div>

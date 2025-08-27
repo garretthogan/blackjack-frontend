@@ -12,6 +12,7 @@ import { useUser } from './context/UserContext';
 import UserHUD from './UserHUD';
 import RoundResultModal from './RoundResultModal';
 import BetModal from './BetModal';
+import useDealerStore from './dealer';
 
 export default function Blackjack() {
   return (
@@ -29,11 +30,19 @@ function BlackjackInner() {
 
   const [deck, setDeck] = useState([]);
   const [hand, setHand] = useState([]);
-  const [dealerHand, setDealerHand] = useState([]);
   const [stood, setStood] = useState(false);
   const [resolved, setResolved] = useState(false);
   const [evaluating, setEvaluating] = useState(false);
   const [betOpen, setBetOpen] = useState(true);
+
+  const {
+    dealerHand,
+    dealerValue,
+    setDealerHand,
+    addDealerCard,
+    removeDealerCard,
+    resetDealerHand,
+  } = useDealerStore();
 
   const prevResultOpen = useRef(resultOpen);
 
@@ -83,26 +92,37 @@ function BlackjackInner() {
     dealInitial();
   };
 
-  const drawOne = useCallback(() => {
+  const drawOne = () => {
     setDeck(d => {
       if (d.length === 0) return d;
       const next = d[d.length - 1];
       const rest = d.slice(0, d.length - 1);
-      setHand(h => [...h, next]);
+      setHand(h => {
+        const nextHand = [...h, next];
+        const playerTotal = calcTotal(nextHand);
+        if (playerTotal < 21) {
+          console.log('dealer choosing');
+          const dealerTotal = calcTotal(dealerHand);
+          if (dealerTotal < 17 || (dealerTotal === 17 && dealerHand.length > 2)) {
+            console.log('dealer chose to hit');
+            const next = d[d.length - 1];
+            addDealerCard(next);
+          } else {
+            console.log('dealer stands');
+          }
+        }
+        return nextHand;
+      });
+
       return rest;
     });
-  }, []);
+  };
 
   const runEvaluation = (outcome, message, extra = {}) => {
     const playerTotal = extra.playerTotal ?? calcTotal(hand);
-    const dealerTotal = extra.dealerTotal ?? calcTotal(dealerHand);
-    setEvaluating(true);
-    setTimeout(() => {
-      setEvaluating(false);
-      setResolved(true);
-      settleHand(outcome, message, { playerTotal, dealerTotal, ...extra });
-      setResultOpen(true);
-    }, 1000);
+    setResolved(true);
+    // settleHand(outcome, message, { playerTotal, dealerTotal: dealerValue, ...extra });
+    setResultOpen(true);
   };
 
   const onHit = () => {
@@ -112,14 +132,48 @@ function BlackjackInner() {
 
   const onStand = () => {
     if (stood || !currentBet) return;
-    const r = evaluateVsDealer(deck, dealerHand, hand);
-    setDeck(r.nextDeck);
-    setDealerHand(r.dealerHand);
+
+    let nextDeck = deck.slice();
+    const d = dealerHand.slice();
+    let dealerTotal = calcTotal(d);
+    if (dealerTotal < 17 && nextDeck.length) {
+      const next = nextDeck[nextDeck.length - 1];
+      nextDeck = nextDeck.slice(0, nextDeck.length - 1);
+      dealerTotal = calcTotal([...d, next]);
+      d.push(next);
+      setDeck(nextDeck);
+    }
+    if (dealerTotal < 17 && nextDeck.length) {
+      const next = nextDeck[nextDeck.length - 1];
+      nextDeck = nextDeck.slice(0, nextDeck.length - 1);
+      dealerTotal = calcTotal([...d, next]);
+      d.push(next);
+      setDeck(nextDeck);
+    }
+    if (dealerTotal < 17 && nextDeck.length) {
+      const next = nextDeck[nextDeck.length - 1];
+      nextDeck = nextDeck.slice(0, nextDeck.length - 1);
+      dealerTotal = calcTotal([...d, next]);
+      d.push(next);
+      setDeck(nextDeck);
+    }
+    if (dealerTotal < 17 && nextDeck.length) {
+      const next = nextDeck[nextDeck.length - 1];
+      nextDeck = nextDeck.slice(0, nextDeck.length - 1);
+      dealerTotal = calcTotal([...d, next]);
+      d.push(next);
+      setDeck(nextDeck);
+    }
+
+    setDealerHand(d);
+
+    // const r = evaluateVsDealer(deck, dealerTotal, hand);
+    // setDeck(r.nextDeck);
     setStood(true);
-    runEvaluation(r.outcome, r.message, {
-      playerTotal: r.playerTotal,
-      dealerTotal: r.dealerTotal,
-    });
+    // runEvaluation(r.outcome, r.message, {
+    //   playerTotal: r.playerTotal,
+    //   dealerTotal: dealerTotal,
+    // });
   };
 
   const onDouble = () => {
@@ -127,21 +181,36 @@ function BlackjackInner() {
     const ok = tryDoubleDown();
     if (!ok) return;
     drawOne();
-    setTimeout(() => {
-      const r = evaluateVsDealer(deck, dealerHand, hand);
-      setDeck(r.nextDeck);
-      setDealerHand(r.dealerHand);
-      setStood(true);
-      runEvaluation(r.outcome, r.message, {
-        multiplier: 2,
-        playerTotal: r.playerTotal,
-        dealerTotal: r.dealerTotal,
-      });
-    }, 0);
+    // setTimeout(() => {
+    const r = evaluateVsDealer(deck, dealerHand, hand);
+    setDeck(r.nextDeck);
+    setDealerHand(r.dealerHand);
+    setStood(true);
+    runEvaluation(r.outcome, r.message, {
+      multiplier: 2,
+      playerTotal: r.playerTotal,
+      dealerTotal: r.dealerTotal,
+    });
+    // }, 500);
   };
 
   const total = calcTotal(hand);
   const canSplit = isPair(hand) && !stood;
+
+  console.log({
+    pscore: calcTotal(hand),
+    dscore: calcTotal(dealerHand),
+    bj: calcTotal(hand) === 21,
+    bust: calcTotal(hand) > 21,
+    stood,
+    hand,
+    dhand: dealerHand,
+  });
+
+  if (stood && !resultOpen && !resolved) {
+    console.log('show results');
+    runEvaluation();
+  }
 
   return (
     <div style={containerStyle}>
@@ -149,7 +218,7 @@ function BlackjackInner() {
       <BetModal open={betOpen} onConfirmed={onBetConfirmed} />
       Dealer
       <div style={handAreaStyle} aria-label="Player hand">
-        <Hand cards={dealerHand} />
+        <Hand cards={dealerHand} isDealer={true} />
       </div>
       <div style={handAreaStyle} aria-label="Player hand">
         <Hand cards={hand} />
@@ -160,23 +229,35 @@ function BlackjackInner() {
         <div style={totalStyle}>Total: {total}</div>
       </div>
       <div style={controlsStyle}>
-        <button style={btnStyle} onClick={onHit} disabled={stood || !currentBet}>
+        <button
+          className="disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
+          style={btnStyle}
+          onClick={onHit}
+          disabled={stood || !currentBet || evaluating}
+        >
           Hit
         </button>
-        <button style={btnStyle} onClick={onStand} disabled={stood || !currentBet}>
+        <button
+          className="disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
+          style={btnStyle}
+          onClick={onStand}
+          disabled={stood || !currentBet || evaluating}
+        >
           Stand
         </button>
         <button
+          className="disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
           style={btnStyle}
           onClick={onDouble}
-          disabled={stood || hand.length === 0 || !currentBet}
+          disabled={stood || hand.length === 0 || !currentBet || evaluating}
         >
           Double
         </button>
         <button
+          className="disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
           style={{ ...btnStyle, opacity: canSplit ? 1 : 0.5 }}
           onClick={() => {}}
-          disabled={!canSplit || !currentBet}
+          disabled={!canSplit || !currentBet || evaluating}
         >
           Split
         </button>

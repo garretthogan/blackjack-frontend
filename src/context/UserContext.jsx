@@ -88,26 +88,23 @@ export function UserProvider({ children, initialBank = DEFAULT_INITIAL_BANK }) {
     return true;
   }, [balance, currentBet]);
 
-  const settleHand = useCallback(
-    (outcome, message, opts = {}) => {
-      const mult = Number.isFinite(opts.multiplier) ? opts.multiplier : betMultiplier;
-      const paidBack = settlementReturn(currentBet, outcome, { multiplier: mult });
-      const delta = paidBack - currentBet * mult;
+  const settleHand = (outcome, message, opts = {}) => {
+    const mult = Number.isFinite(opts.multiplier) ? opts.multiplier : betMultiplier;
+    const paidBack = settlementReturn(currentBet, outcome, { multiplier: mult });
+    const delta = paidBack - currentBet * mult;
 
-      setBalance(b => b + paidBack);
-      setLastResult({
-        outcome,
-        delta,
-        message,
-        playerTotal: n(opts.playerTotal),
-        dealerTotal: n(opts.dealerTotal),
-      });
-      setRound(r => r + 1);
-      setCurrentBet(0);
-      setBetMultiplier(1);
-    },
-    [currentBet, betMultiplier]
-  );
+    setBalance(b => b + paidBack);
+    setLastResult({
+      outcome,
+      delta,
+      message,
+      playerTotal: n(opts.playerTotal),
+      dealerTotal: n(opts.dealerTotal),
+    });
+    setRound(r => r + 1);
+    setCurrentBet(0);
+    setBetMultiplier(1);
+  };
 
   return (
     <UserContext.Provider
