@@ -47,7 +47,7 @@ export default function RoundResultModal({ isOpen, onClose }) {
           </div>
         ) : (
           <button style={buttonStyle} onClick={() => onClose()}>
-            Close
+            Play Again
           </button>
         )}
       </div>

@@ -5,14 +5,11 @@ import BlackjackTable from './BlackjackTable';
 export default function Blackjack() {
   const navigate = useNavigate();
 
-  const [evaluating, setEvaluating] = useState(false);
-
   return (
     <div style={containerStyle}>
       <BlackjackTable />
-      {evaluating && <div style={evaluatingBoxStyle}>Evaluating…</div>}
-      <button style={backButtonStyle} onClick={() => navigate('/run-hub')}>
-        Back to Hub
+      <button style={backButtonStyle} onClick={() => navigate('/seat-buy-in')}>
+        Reset Bank
       </button>
     </div>
   );

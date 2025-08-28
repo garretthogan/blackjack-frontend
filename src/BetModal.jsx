@@ -55,8 +55,8 @@ export default function BetModal({ open, onConfirmed }) {
           <button style={primaryBtnStyle(disabled)} onClick={place} disabled={disabled}>
             Place Bet
           </button>
-          <button style={secondaryBtnStyle} onClick={() => navigate('/run-hub')}>
-            Back to Run Hub
+          <button style={secondaryBtnStyle} onClick={() => navigate('/seat-buy-in')}>
+            Reset Bank
           </button>
         </div>
       </div>
