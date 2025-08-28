@@ -31,8 +31,6 @@ export function UserProvider({ children, initialBank = DEFAULT_INITIAL_BANK }) {
   const [round, setRound] = useState(n(stored.round) || 1);
   const [currentBet, setCurrentBet] = useState(n(stored.currentBet) || 0);
   const [betMultiplier, setBetMultiplier] = useState(n(stored.betMultiplier) || 1);
-  const [lastResult, setLastResult] = useState(null);
-  const [resultOpen, setResultOpen] = useState(false);
 
   useEffect(() => {
     sessionStorage.setItem(
@@ -51,8 +49,6 @@ export function UserProvider({ children, initialBank = DEFAULT_INITIAL_BANK }) {
       setRound(1);
       setCurrentBet(0);
       setBetMultiplier(1);
-      setLastResult(null);
-      setResultOpen(false);
       sessionStorage.setItem(
         STORAGE_KEY,
         JSON.stringify({
@@ -94,13 +90,6 @@ export function UserProvider({ children, initialBank = DEFAULT_INITIAL_BANK }) {
     const delta = paidBack - currentBet * mult;
 
     setBalance(b => b + paidBack);
-    setLastResult({
-      outcome,
-      delta,
-      message,
-      playerTotal: n(opts.playerTotal),
-      dealerTotal: n(opts.dealerTotal),
-    });
     setRound(r => r + 1);
     setCurrentBet(0);
     setBetMultiplier(1);
@@ -118,9 +107,6 @@ export function UserProvider({ children, initialBank = DEFAULT_INITIAL_BANK }) {
         startHand,
         tryDoubleDown,
         settleHand,
-        lastResult,
-        resultOpen,
-        setResultOpen,
       }}
     >
       {children}

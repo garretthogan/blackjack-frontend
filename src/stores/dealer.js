@@ -1,13 +1,13 @@
 import { create } from 'zustand';
-import { calcTotal } from './helpers';
+import { calcTotal } from '../helpers';
 
 const useDealerStore = create(set => ({
   dealerHand: [],
   dealerValue: 0,
   setDealerHand: cards => set({ dealerHand: cards, dealerValue: calcTotal(cards) }),
-  addDealerCard: card =>
+  addDealerCards: cards =>
     set(state => {
-      const newCards = [...state.dealerHand, card];
+      const newCards = [...state.dealerHand, ...cards];
       return {
         dealerHand: newCards,
         dealerValue: calcTotal(newCards),
