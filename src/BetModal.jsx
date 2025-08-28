@@ -1,29 +1,31 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { useUser } from './context/UserContext';
+import usePlayerStore from './stores/player';
 
 export default function BetModal({ open, onConfirmed }) {
   const navigate = useNavigate();
-  const { balance, startHand, currentBet } = useUser();
-  const [pendingBet, setPendingBet] = useState(0);
+  const { balance, startHand } = useUser();
+
+  const { setPlayerBet, playerBet } = usePlayerStore();
 
   useEffect(() => {
-    if (open) setPendingBet(0);
+    if (open) setPlayerBet(0);
   }, [open]);
 
   if (!open) return null;
 
-  const add = v => setPendingBet(b => Math.min(balance, b + v));
-  const clear = () => setPendingBet(0);
+  const add = v => setPlayerBet(Math.min(balance, playerBet + v));
+  const clear = () => setPlayerBet(0);
   const autoMin = () => add(25);
 
   const place = () => {
-    if (pendingBet <= 0) return;
-    const ok = startHand(pendingBet);
+    if (playerBet <= 0) return;
+    const ok = startHand(playerBet);
     if (ok && typeof onConfirmed === 'function') onConfirmed();
   };
 
-  const disabled = pendingBet <= 0;
+  const disabled = playerBet <= 0;
 
   return (
     <div style={overlayStyle}>
@@ -43,8 +45,8 @@ export default function BetModal({ open, onConfirmed }) {
         </div>
 
         <div style={currentRowStyle}>
-          <span>Current Bet: ${pendingBet}</span>
-          <button onClick={clear} disabled={pendingBet === 0} style={clearBtnStyle}>
+          <span>Current Bet: ${playerBet}</span>
+          <button onClick={clear} disabled={playerBet === 0} style={clearBtnStyle}>
             ✕
           </button>
         </div>
@@ -53,8 +55,8 @@ export default function BetModal({ open, onConfirmed }) {
           <button style={primaryBtnStyle(disabled)} onClick={place} disabled={disabled}>
             Place Bet
           </button>
-          <button style={secondaryBtnStyle} onClick={() => navigate('/run-hub')}>
-            Back to Run Hub
+          <button style={secondaryBtnStyle} onClick={() => navigate('/seat-buy-in')}>
+            Reset Bank
           </button>
         </div>
       </div>

@@ -36,11 +36,12 @@ export default function SeatAndBuyIn() {
   const startRun = () => {
     if (!withinLimits) return;
     setStartingBank(buyIn);
-    navigate('/run-hub');
+    navigate('/blackjack');
   };
 
   return (
     <div style={containerStyle}>
+      <h1 className="text-2xl font-bold mb-4">Blackjack</h1>
       <div>
         <section className="w-[520px] max-w-[92vw] rounded-2xl border border-zinc-200 p-6 shadow-sm">
           <h2 className="mb-4 text-base font-semibold tracking-tight">Buy-in</h2>
@@ -97,7 +98,7 @@ export default function SeatAndBuyIn() {
                 : 'cursor-not-allowed border border-zinc-200')
             }
           >
-            Start Run
+            Play
           </button>
         </section>
       </div>

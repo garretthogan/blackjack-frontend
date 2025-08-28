@@ -98,16 +98,9 @@ export function evaluateOutcome(hand) {
   return { outcome: null, message: '' };
 }
 
-export function evaluateVsDealer(deck, dealerHand, playerHand) {
-  let nextDeck = deck.slice();
-  const d = dealerHand.slice();
-  while (calcTotal(d) < 17 && nextDeck.length) {
-    const next = nextDeck[nextDeck.length - 1];
-    nextDeck = nextDeck.slice(0, nextDeck.length - 1);
-    d.push(next);
-  }
+export function evaluateVsDealer(deck, dealerTotal, playerHand) {
   const playerTotal = calcTotal(playerHand);
-  const dealerTotal = calcTotal(d);
+
   let outcome = 'push';
   let message = `Push at ${playerTotal}`;
   if (playerTotal > 21) {
@@ -123,7 +116,7 @@ export function evaluateVsDealer(deck, dealerHand, playerHand) {
     outcome = 'loss';
     message = `Stood at ${playerTotal}`;
   }
-  return { outcome, message, nextDeck, dealerHand: d, playerTotal, dealerTotal };
+  return { outcome, message, playerTotal, dealerTotal };
 }
 
 export function suitName(s) {

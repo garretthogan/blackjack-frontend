@@ -1,21 +1,13 @@
-import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { useUser } from './context/UserContext';
+import useScoreboardStore from './stores/scoreboard';
 
-export default function RoundResultModal() {
-  const { lastResult, resultOpen, setResultOpen, balance, setStartingBank, bankCap } =
-    useUser();
+export default function RoundResultModal({ isOpen, onClose }) {
+  const { lastResult } = useScoreboardStore();
+  const { balance, setStartingBank, bankCap } = useUser();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const onKey = e => {
-      if (e.key === 'Escape') e.preventDefault();
-    };
-    if (resultOpen) window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [resultOpen]);
-
-  if (!resultOpen || !lastResult) return null;
+  if (!isOpen) return null;
 
   const stop = e => e.stopPropagation();
   const isGameOver = balance <= 0;
@@ -29,18 +21,13 @@ export default function RoundResultModal() {
       loss: 'Loss',
     }[lastResult.outcome] || 'Result';
 
-  const deltaText = `${lastResult.delta >= 0 ? '+' : ''}${lastResult.delta} chips`;
-
   return (
     <div style={overlayStyle}>
       <div style={modalStyle} onClick={stop}>
         <h2 style={titleStyle}>{outcomeTitle}</h2>
-        <p style={messageStyle}>{lastResult.message}</p>
+        <p style={messageStyle}>{lastResult.reason}</p>
         <p style={totalsStyle}>
-          Player {lastResult.playerTotal ?? '—'} vs Dealer {lastResult.dealerTotal ?? '—'}
-        </p>
-        <p style={{ ...deltaStyle, color: lastResult.delta >= 0 ? 'lime' : 'tomato' }}>
-          {deltaText}
+          Player {lastResult.playerScore ?? '—'} vs Dealer {lastResult.dealerScore ?? '—'}
         </p>
 
         {isGameOver ? (
@@ -49,7 +36,7 @@ export default function RoundResultModal() {
               style={buttonStyle}
               onClick={() => {
                 setStartingBank(bankCap || 1000);
-                setResultOpen(false);
+                onClose();
               }}
             >
               Restart Round
@@ -59,8 +46,8 @@ export default function RoundResultModal() {
             </button>
           </div>
         ) : (
-          <button style={buttonStyle} onClick={() => setResultOpen(false)}>
-            Close
+          <button style={buttonStyle} onClick={() => onClose()}>
+            Play Again
           </button>
         )}
       </div>
