@@ -122,10 +122,6 @@ export default function BlackjackTable({}) {
     playerStands();
   }
 
-  if (!playerStood && dealerValue > 21 && !lastResult) {
-    playerStands();
-  }
-
   if (!playerStood && playerValue === 21 && !lastResult) {
     playerStands();
   }
