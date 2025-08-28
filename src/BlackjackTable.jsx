@@ -5,7 +5,6 @@ import usePlayerStore from './stores/player';
 import useDeckStore from './stores/deck';
 import RoundResultModal from './RoundResultModal';
 import useScoreboardStore from './stores/scoreboard';
-import { useCallback } from 'react';
 
 const titleStyle = { margin: '16px 0 8px', fontSize: 28 };
 const handAreaStyle = {
@@ -61,7 +60,14 @@ const btnStyle = {
 
 export default function BlackjackTable({}) {
   const { addResult, lastResult, resetScoreboard } = useScoreboardStore();
-  const { dealerHand, dealerValue, addDealerCards, resetDealerHand } = useDealerStore();
+  const {
+    dealerHand,
+    dealerValue,
+    addDealerCards,
+    resetDealerHand,
+    isDealerThinking,
+    startThinking,
+  } = useDealerStore();
   const { deck, resetDeck, drawCard } = useDeckStore();
 
   const {
@@ -130,9 +136,15 @@ export default function BlackjackTable({}) {
 
   return (
     <div>
-      <RoundResultModal isOpen={playerStood && lastResult} onClose={startPlacingBet} />
-      <h1 style={titleStyle}>Blackjack</h1>
-      <BetModal open={placingBets} onConfirmed={dealCards} />
+      <RoundResultModal
+        isOpen={playerStood && lastResult && !isDealerThinking}
+        onClose={startPlacingBet}
+      />
+      {isDealerThinking && (
+        <div style={overlayStyle}>
+          <div style={modalStyle}>Evaluating...</div>
+        </div>
+      )}
       Dealer
       <div style={handAreaStyle} aria-label="Dealer hand">
         <Hand cards={dealerHand} isDealer={true} />
@@ -141,48 +153,79 @@ export default function BlackjackTable({}) {
         <Hand cards={playerHand} />
       </div>
       Player
-      <div style={topBarStyle}>
-        <div style={modifierStyle}>Modifier: —</div>
-        <div style={totalStyle}>Total: {playerValue}</div>
-      </div>
-      <div style={controlsStyle}>
-        <button
-          className="disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
-          style={btnStyle}
-          onClick={() => {
-            addPlayerCards([drawCard()]);
-            if (dealerValue < 17 && playerValue < 21) addDealerCards([drawCard()]);
-            else console.log('dealer stays');
-          }}
-          disabled={playerStood || !playerBet}
-        >
-          Hit
-        </button>
-        <button
-          className="disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
-          style={btnStyle}
-          onClick={() => {
-            playerStands();
-          }}
-          disabled={playerStood || !playerBet}
-        >
-          Stand
-        </button>
-        <button
-          className="disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
-          style={btnStyle}
-          disabled={true}
-        >
-          Double
-        </button>
-        <button
-          className="disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
-          style={{ ...btnStyle, opacity: 0.5 }}
-          disabled={true}
-        >
-          Split
-        </button>
-      </div>
+      {!isDealerThinking && (
+        <div>
+          <BetModal open={placingBets} onConfirmed={dealCards} />
+
+          <div>
+            <div style={topBarStyle}>
+              <div style={modifierStyle}>Modifier: —</div>
+              <div style={totalStyle}>Total: {playerValue}</div>
+            </div>
+          </div>
+          <div style={controlsStyle}>
+            <button
+              className="disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
+              style={btnStyle}
+              onClick={() => {
+                addPlayerCards([drawCard()]);
+                startThinking();
+                if (dealerValue < 17 && playerValue < 21) addDealerCards([drawCard()]);
+                else console.log('dealer stays');
+              }}
+              disabled={playerStood || !playerBet}
+            >
+              Hit
+            </button>
+            <button
+              className="disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
+              style={btnStyle}
+              onClick={() => {
+                playerStands();
+                startThinking();
+              }}
+              disabled={playerStood || !playerBet}
+            >
+              Stand
+            </button>
+            <button
+              className="disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
+              style={btnStyle}
+              disabled={true}
+            >
+              Double
+            </button>
+            <button
+              className="disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
+              style={{ ...btnStyle, opacity: 0.5 }}
+              disabled={true}
+            >
+              Split
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
+const overlayStyle = {
+  position: 'fixed',
+  inset: 0,
+  background: 'rgba(0,0,0,0.6)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  zIndex: 1000,
+};
+
+const modalStyle = {
+  background: '#23272f',
+  color: '#e5e7eb',
+  border: '1px solid rgba(255,255,255,0.15)',
+  borderRadius: 14,
+  padding: 18,
+  width: 420,
+  maxWidth: '92vw',
+  boxShadow: '0 20px 50px rgba(0,0,0,0.45)',
+};
