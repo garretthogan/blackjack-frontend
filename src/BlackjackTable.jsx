@@ -5,6 +5,7 @@ import usePlayerStore from './stores/player';
 import useDeckStore from './stores/deck';
 import RoundResultModal from './RoundResultModal';
 import useScoreboardStore from './stores/scoreboard';
+import { useCallback } from 'react';
 
 const titleStyle = { margin: '16px 0 8px', fontSize: 28 };
 const handAreaStyle = {
@@ -46,7 +47,6 @@ const controlsStyle = {
   display: 'grid',
   gridTemplateColumns: 'repeat(4, minmax(100px, 1fr))',
   gap: 12,
-  width: 'min(640px, 92vw)',
   marginBottom: 16,
 };
 
@@ -93,17 +93,15 @@ export default function BlackjackTable({}) {
   };
 
   if (playerStood && !lastResult) {
-    console.log('player has stood', playerValue, dealerValue);
-
-    if (playerValue === 21) {
+    if (playerValue < 21 && dealerValue <= 17) {
+      addDealerCards([drawCard()]);
+    } else if (playerValue <= 21 && dealerValue > 21) {
+      addResult('Win', 'Dealer busted', playerValue, dealerValue);
+    } else if (playerValue === 21) {
       addResult('Win', 'Blackjack!', playerValue, dealerValue);
-    }
-
-    if (playerValue > 21) {
+    } else if (playerValue > 21) {
       addResult('Loss', 'Busted', playerValue, dealerValue);
-    }
-
-    if (playerValue < 21) {
+    } else if (playerValue < 21) {
       if (playerValue < dealerValue) {
         addResult('Loss', 'Dealer wins', playerValue, dealerValue);
       } else if (playerValue > dealerValue) {
@@ -115,6 +113,18 @@ export default function BlackjackTable({}) {
   }
 
   if (!playerStood && playerValue > 21 && !lastResult) {
+    playerStands();
+  }
+
+  if (!playerStood && dealerValue > 21 && !lastResult) {
+    playerStands();
+  }
+
+  if (!playerStood && playerValue === 21 && !lastResult) {
+    playerStands();
+  }
+
+  if (!playerStood && dealerValue === 21 && !lastResult) {
     playerStands();
   }
 
@@ -141,6 +151,8 @@ export default function BlackjackTable({}) {
           style={btnStyle}
           onClick={() => {
             addPlayerCards([drawCard()]);
+            if (dealerValue < 17 && playerValue < 21) addDealerCards([drawCard()]);
+            else console.log('dealer stays');
           }}
           disabled={playerStood || !playerBet}
         >
@@ -149,7 +161,9 @@ export default function BlackjackTable({}) {
         <button
           className="disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
           style={btnStyle}
-          onClick={playerStands}
+          onClick={() => {
+            playerStands();
+          }}
           disabled={playerStood || !playerBet}
         >
           Stand
@@ -157,14 +171,13 @@ export default function BlackjackTable({}) {
         <button
           className="disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
           style={btnStyle}
-          disabled={playerStood || playerHand.length === 0 || !playerBet}
+          disabled={true}
         >
           Double
         </button>
         <button
           className="disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
           style={{ ...btnStyle, opacity: 0.5 }}
-          onClick={() => {}}
           disabled={true}
         >
           Split
