@@ -21,21 +21,12 @@ export default function DeckViewer({ cards, jokers, title = 'Deck & Jokers' }) {
   const [query, setQuery] = useState('');
   const filteredDeck = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return deck;
-    return deck.filter(card => {
-      const rank = String(card.rank || '').toLowerCase();
-      const suit = String(card.suit || '').toLowerCase();
-      const tag = (String(card.rank) + String(card.suit)).toLowerCase();
-      const suitText = String(card.suitName || '').toLowerCase();
-      const nameText = String(card.name || '').toLowerCase();
-      return (
-        rank.includes(q) ||
-        suit.includes(q) ||
-        tag.includes(q) ||
-        suitText.includes(q) ||
-        nameText.includes(q)
-      );
-    });
+    if (!q) return true;
+    return (
+      c.rank.toLowerCase().includes(q) ||
+      c.suitName.toLowerCase().includes(q) ||
+      (c.rank + c.suit).toLowerCase().includes(q)
+    );
   }, [deck, query]);
 
   const sortByRank = () => {
