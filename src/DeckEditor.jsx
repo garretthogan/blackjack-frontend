@@ -6,19 +6,21 @@ export default function DeckEditor() {
   const navigate = useNavigate();
   const { deckId = 'standard' } = useParams();
 
-  const ownedShopCards = useDeckStore(s => s.ownedShopCards);
-  const decksById = useDeckStore(s => s.decks);
-  const setActiveDeck = useDeckStore(s => s.setActiveDeck);
-  const { removeFromLoadoutFor, addToLoadoutFor } = useDeckStore();
-  const buildAndShuffle = useDeckStore(s => s.buildAndShuffle);
-
-  const getDisplayName = useDeckStore(s => s.getDisplayName);
-  const getDisplayDesc = useDeckStore(s => s.getDisplayDesc);
-  const openEditor = useDeckStore(s => s.openEditor);
-  const setEditorField = useDeckStore(s => s.setEditorField);
-  const saveEditor = useDeckStore(s => s.saveEditor);
-  const cancelEditor = useDeckStore(s => s.cancelEditor);
-  const editor = useDeckStore(s => s.editor);
+  const {
+    decks: decksById,
+    ownedShopCards,
+    addToLoadoutFor,
+    removeFromLoadoutFor,
+    setActiveDeck,
+    buildAndShuffle,
+    getDisplayName,
+    getDisplayDesc,
+    openEditor,
+    setEditorField,
+    saveEditor,
+    cancelEditor,
+    editor,
+  } = useDeckStore();
 
   const currentDeck = decksById[deckId] || { id: deckId, loadout: [] };
   const loadoutIds = new Set(currentDeck.loadout.map(card => card.id));

@@ -5,7 +5,6 @@ import useScoreboardStore from './stores/scoreboard';
 export default function RoundResultModal({ isOpen, onClose }) {
   const { lastResult } = useScoreboardStore();
   const { balance, setStartingBank, bankCap } = useUser();
-  const navigate = useNavigate();
 
   if (!isOpen) return null;
 

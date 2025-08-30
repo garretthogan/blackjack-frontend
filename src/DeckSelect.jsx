@@ -6,17 +6,18 @@ export default function DeckSelect() {
   const navigate = useNavigate();
   const [hoveredId, setHoveredId] = useState(null);
 
-  const decksById = useDeckStore(s => s.decks);
-  const ownedShopCards = useDeckStore(s => s.ownedShopCards);
-  const deckExists = useDeckStore(s => s.deckExists);
-  const getDisplayName = useDeckStore(s => s.getDisplayName);
-  const getDisplayDesc = useDeckStore(s => s.getDisplayDesc);
-
-  const openEditor = useDeckStore(s => s.openEditor);
-  const setEditorField = useDeckStore(s => s.setEditorField);
-  const saveEditor = useDeckStore(s => s.saveEditor);
-  const cancelEditor = useDeckStore(s => s.cancelEditor);
-  const editor = useDeckStore(s => s.editor);
+  const {
+    decksById,
+    ownedShopCards,
+    deckExists,
+    getDisplayName,
+    getDisplayDesc,
+    openEditor,
+    setEditorField,
+    saveEditor,
+    cancelEditor,
+    editor,
+  } = useDeckStore();
 
   const handleSelect = () => navigate('/run-hub');
   const goEdit = id => navigate(`/deck-edit/${encodeURIComponent(id)}`);
