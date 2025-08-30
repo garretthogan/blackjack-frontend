@@ -60,15 +60,15 @@ export default function DeckViewer({ cards, jokers, title = 'Deck & Jokers' }) {
         />
         {!isLiveMode && (
           <>
-            <button style={buttonStyle} onClick={sortByRank}>
+            <button style={btnStyle} onClick={sortByRank}>
               Sort by Rank
             </button>
-            <button style={buttonStyle} onClick={shuffleDeck}>
+            <button style={btnStyle} onClick={shuffleDeck}>
               Shuffle
             </button>
           </>
         )}
-        <button style={buttonStyle} onClick={() => setQuery('')}>
+        <button style={btnStyle} onClick={() => setQuery('')}>
           Clear Filter
         </button>
       </div>
@@ -126,7 +126,7 @@ function CardRow({ card }) {
       <div style={rowTextStyle}>
         <div style={{ fontWeight: 700 }}>
           {card.rank}
-          {card.suit} — {card.suitName || card.name}
+          {card.suit} — {card.suitName}
         </div>
         <div style={{ opacity: 0.8, fontSize: 12 }}>ID: {card.id}</div>
       </div>
@@ -229,7 +229,7 @@ const inputStyle = {
   color: '#eee',
 };
 
-const buttonStyle = {
+const btnStyle = {
   padding: '10px 14px',
   borderRadius: 10,
   border: '1px solid ',
