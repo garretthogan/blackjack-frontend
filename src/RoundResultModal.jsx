@@ -5,7 +5,6 @@ import useScoreboardStore from './stores/scoreboard';
 export default function RoundResultModal({ isOpen, onClose }) {
   const { lastResult } = useScoreboardStore();
   const { balance, setStartingBank, bankCap } = useUser();
-  const navigate = useNavigate();
 
   if (!isOpen) return null;
 
@@ -41,13 +40,10 @@ export default function RoundResultModal({ isOpen, onClose }) {
             >
               Restart Round
             </button>
-            <button style={buttonStyle} onClick={() => navigate('/')}>
-              Main Menu
-            </button>
           </div>
         ) : (
           <button style={buttonStyle} onClick={() => onClose()}>
-            Play Again
+            Next Hand
           </button>
         )}
       </div>

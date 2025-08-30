@@ -1,64 +1,91 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { shuffle, suitName } from './helpers';
+import { shuffle, suitName as suitNameFromSymbol } from './helpers';
 
-export default function DeckViewer() {
+export default function DeckViewer({ cards, jokers, title = 'Deck & Jokers' }) {
   const navigate = useNavigate();
-  const [deck, setDeck] = useState(() => generateMockDeck());
-  const [jokers] = useState(() => generateMockJokers());
-  const [query, setQuery] = useState('');
 
-  const filteredDeck = deck.filter(c => {
+  const isLiveMode = Array.isArray(cards) || Array.isArray(jokers);
+  const [mockDeck, setMockDeck] = useState(() => (isLiveMode ? [] : generateMockDeck()));
+  const [mockJokers] = useState(() => (isLiveMode ? [] : generateMockJokers()));
+
+  const deck = useMemo(() => {
+    const source = isLiveMode ? cards || [] : mockDeck;
+    return source.map(card =>
+      card && card.suitName ? card : { ...card, suitName: safeSuitName(card?.suit) }
+    );
+  }, [isLiveMode, cards, mockDeck]);
+
+  const jokers = isLiveMode ? jokers || [] : mockJokers;
+
+  const [query, setQuery] = useState('');
+  const filteredDeck = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return true;
-    return c.rank.toLowerCase().includes(q) || c.suitName.toLowerCase().includes(q) || (c.rank + c.suit).toLowerCase().includes(q);
-  });
+    return (
+      c.rank.toLowerCase().includes(q) ||
+      c.suitName.toLowerCase().includes(q) ||
+      (c.rank + c.suit).toLowerCase().includes(q)
+    );
+  }, [deck, query]);
 
   const sortByRank = () => {
+    if (isLiveMode) return;
     const order = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
-    setDeck(d => [...d].sort((a, b) => order.indexOf(a.rank) - order.indexOf(b.rank)));
+    setMockDeck(d =>
+      [...d].sort((a, b) => order.indexOf(a.rank) - order.indexOf(b.rank))
+    );
   };
 
-  // keep the same function name, but delegate to helpers.shuffle
   const shuffleDeck = () => {
-    setDeck(d => shuffle(d));
+    if (isLiveMode) return;
+    setMockDeck(d => shuffle(d));
   };
 
   return (
     <div style={containerStyle}>
-      <h1 style={titleStyle}>Deck & Jokers</h1>
+      <h1 style={titleStyle}>{title}</h1>
 
       <div style={metaBarStyle}>
-        <div style={pillStyle}>Deck: {deck.length}</div>
-        <div style={pillStyle}>Jokers: {jokers.length}</div>
+        <div style={badgeStyle}>Deck: {deck.length}</div>
+        <div style={badgeStyle}>Jokers: {jokers.length}</div>
       </div>
 
       <div style={controlsStyle}>
-        <input placeholder="Filter (e.g., A, hearts, 10♣)" value={query} onChange={e => setQuery(e.target.value)} style={inputStyle} />
-        <button style={btnStyle} onClick={sortByRank}>
-          Sort by Rank
-        </button>
-        <button style={btnStyle} onClick={shuffleDeck}>
-          Shuffle
-        </button>
+        <input
+          placeholder="Filter (e.g., A, hearts, 10♣)"
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+          style={inputStyle}
+        />
+        {!isLiveMode && (
+          <>
+            <button style={btnStyle} onClick={sortByRank}>
+              Sort by Rank
+            </button>
+            <button style={btnStyle} onClick={shuffleDeck}>
+              Shuffle
+            </button>
+          </>
+        )}
         <button style={btnStyle} onClick={() => setQuery('')}>
           Clear Filter
         </button>
       </div>
 
       <div style={columnsStyle}>
-        {/* Deck column */}
         <section style={deckColStyle} aria-label="Deck list">
-          <h2 style={sectionTitleStyle}>Deck</h2>
+          <h2 style={sectionTitleStyle}>{isLiveMode ? 'Remaining Deck' : 'Deck'}</h2>
           <div style={deckListStyle}>
             {filteredDeck.map(c => (
               <CardRow key={c.id} card={c} />
             ))}
-            {filteredDeck.length === 0 && <div style={{ opacity: 0.8, padding: 12 }}>No cards match your filter.</div>}
+            {filteredDeck.length === 0 && (
+              <div style={{ opacity: 0.8, padding: 12 }}>No cards match your filter.</div>
+            )}
           </div>
         </section>
 
-        {/* Jokers column */}
         <section style={jokerColStyle} aria-label="Jokers">
           <h2 style={sectionTitleStyle}>Jokers</h2>
           <div style={jokerGridStyle}>
@@ -66,11 +93,14 @@ export default function DeckViewer() {
               <div key={j.id} style={jokerCardStyle}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <h3 style={jokerTitleStyle}>{j.name}</h3>
-                  <span style={rarityStyle}>{j.rarity}</span>
+                  <span style={rarityStyle}>{j.rarity || 'Owned'}</span>
                 </div>
                 <p style={jokerDescStyle}>{j.desc}</p>
               </div>
             ))}
+            {jokers.length === 0 && (
+              <div style={{ opacity: 0.8, padding: 12 }}>No jokers.</div>
+            )}
           </div>
         </section>
       </div>
@@ -104,20 +134,26 @@ function CardRow({ card }) {
   );
 }
 
-/* --- Mock data --- */
+function safeSuitName(symbol) {
+  try {
+    return suitNameFromSymbol(symbol);
+  } catch {
+    return symbol === '☆' ? 'Shop Card' : '';
+  }
+}
+
 function generateMockDeck() {
-  // smaller sample for the viewer (could be the whole 52 later)
   const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
   const suits = ['♠', '♥', '♦', '♣'];
   const sample = [];
   for (let i = 0; i < 16; i++) {
-    const r = ranks[(i * 3) % ranks.length];
-    const s = suits[(i * 5) % suits.length];
+    const rank = ranks[(i * 3) % ranks.length];
+    const suit = suits[(i * 5) % suits.length];
     sample.push({
-      id: `c_${i}_${r}${s}`,
-      rank: r,
-      suit: s,
-      suitName: suitName(s),
+      id: `c_${i}_${rank}${suit}`,
+      rank,
+      suit,
+      suitName: safeSuitName(suit),
     });
   }
   return sample;
@@ -165,8 +201,10 @@ const containerStyle = {
 };
 
 const titleStyle = { margin: 0, fontSize: 28 };
+
 const metaBarStyle = { display: 'flex', gap: 8, alignItems: 'center' };
-const pillStyle = {
+
+const badgeStyle = {
   padding: '6px 10px',
   border: '1px solid ',
   borderRadius: 999,
@@ -212,6 +250,7 @@ const deckColStyle = {
   padding: 12,
   minHeight: 380,
 };
+
 const jokerColStyle = { ...deckColStyle };
 
 const sectionTitleStyle = { margin: '4px 4px 12px', fontSize: 18 };
@@ -265,7 +304,9 @@ const jokerCardStyle = {
 };
 
 const jokerTitleStyle = { margin: 0, fontSize: 16 };
+
 const rarityStyle = { opacity: 0.9, fontSize: 12, alignSelf: 'flex-start' };
+
 const jokerDescStyle = { margin: 0, opacity: 0.85, fontSize: 14 };
 
 const backButtonStyle = {

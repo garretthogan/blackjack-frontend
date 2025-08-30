@@ -11,8 +11,8 @@ export default function RunHub() {
 
         <div style={primaryActionsGridStyle}>
           <ActionButton label="Play Hand" onClick={() => navigate('/blackjack')} />
+          <ActionButton label="Select Deck" onClick={() => navigate('/deck-select')} />
           <ActionButton label="Shop" onClick={() => navigate('/shop')} />
-          <ActionButton label="View Deck" onClick={() => navigate('/deck-viewer')} />
         </div>
 
         <div style={footerGridStyle}>
