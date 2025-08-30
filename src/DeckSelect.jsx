@@ -1,23 +1,36 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import useDeckStore from './stores/deck';
+import { useShallow } from 'zustand/react/shallow';
 
 export default function DeckSelect() {
   const navigate = useNavigate();
   const [hoveredId, setHoveredId] = useState(null);
 
-  const {
-    decksById,
-    ownedShopCards,
-    deckExists,
-    getDisplayName,
-    getDisplayDesc,
-    openEditor,
-    setEditorField,
-    saveEditor,
-    cancelEditor,
-    editor,
-  } = useDeckStore();
+  const { decksById, ownedShopCards } = useDeckStore(
+    useShallow(s => ({
+      decksById: s.decks,
+      ownedShopCards: s.ownedShopCards,
+    }))
+  );
+
+  const { deckExists, getDisplayName, getDisplayDesc } = useDeckStore(
+    useShallow(s => ({
+      deckExists: s.deckExists,
+      getDisplayName: s.getDisplayName,
+      getDisplayDesc: s.getDisplayDesc,
+    }))
+  );
+
+  const { openEditor, setEditorField, saveEditor, cancelEditor, editor } = useDeckStore(
+    useShallow(s => ({
+      openEditor: s.openEditor,
+      setEditorField: s.setEditorField,
+      saveEditor: s.saveEditor,
+      cancelEditor: s.cancelEditor,
+      editor: s.editor,
+    }))
+  );
 
   const handleSelect = () => navigate('/run-hub');
   const goEdit = id => navigate(`/deck-edit/${encodeURIComponent(id)}`);

@@ -1,26 +1,46 @@
 import { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import useDeckStore from './stores/deck';
+import { useShallow } from 'zustand/react/shallow';
 
 export default function DeckEditor() {
   const navigate = useNavigate();
   const { deckId = 'standard' } = useParams();
 
-  const {
-    decks: decksById,
-    ownedShopCards,
-    addToLoadoutFor,
-    removeFromLoadoutFor,
-    setActiveDeck,
-    buildAndShuffle,
-    getDisplayName,
-    getDisplayDesc,
-    openEditor,
-    setEditorField,
-    saveEditor,
-    cancelEditor,
-    editor,
-  } = useDeckStore();
+  const { decks: decksById, ownedShopCards } = useDeckStore(
+    useShallow(s => ({ decks: s.decks, ownedShopCards: s.ownedShopCards }))
+  );
+
+  const { addToLoadoutFor, removeFromLoadoutFor } = useDeckStore(
+    useShallow(s => ({
+      addToLoadoutFor: s.addToLoadoutFor,
+      removeFromLoadoutFor: s.removeFromLoadoutFor,
+    }))
+  );
+
+  const { setActiveDeck, buildAndShuffle } = useDeckStore(
+    useShallow(s => ({
+      setActiveDeck: s.setActiveDeck,
+      buildAndShuffle: s.buildAndShuffle,
+    }))
+  );
+
+  const { getDisplayName, getDisplayDesc } = useDeckStore(
+    useShallow(s => ({
+      getDisplayName: s.getDisplayName,
+      getDisplayDesc: s.getDisplayDesc,
+    }))
+  );
+
+  const { openEditor, setEditorField, saveEditor, cancelEditor, editor } = useDeckStore(
+    useShallow(s => ({
+      openEditor: s.openEditor,
+      setEditorField: s.setEditorField,
+      saveEditor: s.saveEditor,
+      cancelEditor: s.cancelEditor,
+      editor: s.editor,
+    }))
+  );
 
   const currentDeck = decksById[deckId] || { id: deckId, loadout: [] };
   const loadoutIds = new Set(currentDeck.loadout.map(card => card.id));
