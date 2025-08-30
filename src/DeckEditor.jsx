@@ -225,11 +225,7 @@ export default function DeckEditor() {
             >
               Back
             </button>
-            <button
-              style={footerRightButtonStyle}
-              onClick={handleSaveDeck}
-              disabled={loadoutCount === 0}
-            >
+            <button style={footerRightButtonStyle} onClick={handleSaveDeck}>
               Save Deck
             </button>
           </div>
