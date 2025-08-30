@@ -12,12 +12,12 @@ function generateDeck() {
 
 // Fisher-Yates shuffle
 function shuffleDeck(deck) {
-  const a = [...deck];
-  for (let i = a.length - 1; i > 0; i--) {
+  const array = [...deck];
+  for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
+    [array[i], array[j]] = [array[j], array[i]];
   }
-  return a;
+  return array;
 }
 
 function mapItemToCard(item) {
