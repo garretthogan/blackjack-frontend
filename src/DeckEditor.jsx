@@ -70,7 +70,7 @@ export default function DeckEditor() {
   const handleRemove = id => removeFromLoadoutFor(deckId, id);
 
   const handleSaveDeck = () => {
-    setActiveDeck(deckId);
+    saveEditor();
     buildAndShuffle(deckId);
     navigate('/deck-select');
   };
