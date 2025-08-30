@@ -1,4 +1,3 @@
-// src/SeatAndBuyIn.jsx
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useUser } from './context/UserContext';
@@ -99,6 +98,13 @@ export default function SeatAndBuyIn() {
             }
           >
             Play
+          </button>
+
+          <button
+            onClick={() => navigate('/run-hub')}
+            className="mt-3 w-full rounded-2xl px-5 py-3 text-sm font-medium shadow-sm transition focus:outline-none focus-visible:ring-2 border border-zinc-200"
+          >
+            Back to Run Hub
           </button>
         </section>
       </div>

@@ -52,11 +52,11 @@ export default function BetModal({ open, onConfirmed }) {
         </div>
 
         <div style={actionsRowStyle}>
-          <button style={primaryBtnStyle(disabled)} onClick={place} disabled={disabled}>
-            Place Bet
-          </button>
           <button style={secondaryBtnStyle} onClick={() => navigate('/seat-buy-in')}>
             Reset Bank
+          </button>
+          <button style={primaryBtnStyle(disabled)} onClick={place} disabled={disabled}>
+            Place Bet
           </button>
         </div>
       </div>

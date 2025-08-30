@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
+import useDeckStore from './stores/deck';
 
 /** Minimal mock catalog pools */
 const POOLS = {
@@ -26,14 +27,16 @@ const POOLS = {
 
 export default function Shop() {
   const navigate = useNavigate();
+  const addOwnedShopCard = useDeckStore(s => s.addOwnedShopCard);
+  const ownedShopCards = useDeckStore(s => s.ownedShopCards);
+  const ownedIds = new Set(ownedShopCards.map(c => c.id));
 
   // state
   const [tab, setTab] = useState('Hexes');
   const [credits, setCredits] = useState(1200);
   const [rerollCost, setRerollCost] = useState(50);
-  const [discount, setDiscount] = useState(0); // % discount from voucher
+  const [discount, setDiscount] = useState(0);
   const [items, setItems] = useState(() => rollShop(tab));
-  const [owned, setOwned] = useState({}); // id -> true
 
   function rollShop(whichTab) {
     // Simple random selection of up to 6 items from the pool (no dupes)
@@ -50,16 +53,12 @@ export default function Shop() {
   const effectiveCost = base => Math.max(0, Math.round(base * (1 - discount)));
 
   const buyItem = item => {
-    if (owned[item.id]) return;
+    if (ownedIds.has(item.id)) return;
     const cost = effectiveCost(item.cost);
     if (credits < cost) return;
     setCredits(c => c - cost);
-    setOwned(o => ({ ...o, [item.id]: true }));
-
-    // Simple example effect: voucher applies a discount once.
-    if (item.id === 'co_reroll+') {
-      setDiscount(0.25); // 25% off
-    }
+    addOwnedShopCard(item);
+    if (item.id === 'co_reroll+') setDiscount(0.25);
   };
 
   const reroll = () => {
@@ -67,7 +66,7 @@ export default function Shop() {
     if (credits < cost) return;
     setCredits(c => c - cost);
     setItems(rollShop(tab));
-    setRerollCost(r => Math.round(r * 1.6)); // escalate cost
+    setRerollCost(r => Math.round(r * 1.6));
   };
 
   return (
@@ -76,7 +75,9 @@ export default function Shop() {
 
       <div style={topBarStyle}>
         <div style={currencyStyle}>Winnings: {credits}</div>
-        <div style={discountStyle}>{discount > 0 ? `Discount: -${Math.round(discount * 100)}%` : 'No Discount'}</div>
+        <div style={discountStyle}>
+          {discount > 0 ? `Discount: -${Math.round(discount * 100)}%` : 'No Discount'}
+        </div>
       </div>
 
       <div style={tabsStyle} role="tablist" aria-label="Shop categories">
@@ -97,21 +98,30 @@ export default function Shop() {
         {items.length === 0 ? (
           <div style={{ opacity: 0.8, padding: 16 }}>No items available.</div>
         ) : (
-          items.map(it => (
-            <ItemCard
-              key={it.id}
-              item={it}
-              owned={!!owned[it.id]}
-              effectiveCost={effectiveCost(it.cost)}
-              canBuy={credits >= effectiveCost(it.cost) && !owned[it.id]}
-              onBuy={() => buyItem(it)}
-            />
-          ))
+          items.map(it => {
+            const isOwned = ownedIds.has(it.id);
+            const costNow = effectiveCost(it.cost);
+            const canBuy = !isOwned && credits >= costNow;
+            return (
+              <ItemCard
+                key={it.id}
+                item={it}
+                owned={isOwned}
+                effectiveCost={costNow}
+                canBuy={canBuy}
+                onBuy={() => buyItem(it)}
+              />
+            );
+          })
         )}
       </div>
 
       <div style={bottomBarStyle}>
-        <button style={btnStyle} onClick={reroll} disabled={credits < effectiveCost(rerollCost)}>
+        <button
+          style={btnStyle}
+          onClick={reroll}
+          disabled={credits < effectiveCost(rerollCost)}
+        >
           Reroll ({effectiveCost(rerollCost)})
         </button>
         <button style={btnStyle} onClick={() => navigate('/run-hub')}>
@@ -136,14 +146,17 @@ function ItemCard({ item, owned, effectiveCost, canBuy, onBuy }) {
         <span style={priceStyle}>{owned ? 'Owned' : effectiveCost}</span>
       </div>
       <p style={cardDescStyle}>{item.desc}</p>
-      <button style={{ ...buyBtnStyle, opacity: canBuy ? 1 : 0.5 }} onClick={onBuy} disabled={!canBuy || owned}>
+      <button
+        style={{ ...buyBtnStyle, opacity: canBuy ? 1 : 0.5 }}
+        onClick={onBuy}
+        disabled={!canBuy || owned}
+      >
         {owned ? 'Purchased' : 'Buy'}
       </button>
     </div>
   );
 }
 
-/* styles */
 const containerStyle = {
   minHeight: '100vh',
   display: 'flex',

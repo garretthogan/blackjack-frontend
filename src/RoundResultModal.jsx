@@ -41,13 +41,10 @@ export default function RoundResultModal({ isOpen, onClose }) {
             >
               Restart Round
             </button>
-            <button style={buttonStyle} onClick={() => navigate('/')}>
-              Main Menu
-            </button>
           </div>
         ) : (
           <button style={buttonStyle} onClick={() => onClose()}>
-            Play Again
+            Next Hand
           </button>
         )}
       </div>
