@@ -119,7 +119,7 @@ export default function BlackjackTable() {
           <div style={controlsStyle}>
             <button
               className="disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
-              style={buttonStyle}
+              style={btnStyle}
               onClick={() => {
                 addPlayerCards([drawCard()]);
                 startThinking();
@@ -132,7 +132,7 @@ export default function BlackjackTable() {
             </button>
             <button
               className="disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
-              style={buttonStyle}
+              style={btnStyle}
               onClick={() => {
                 playerStands();
                 startThinking();
@@ -143,14 +143,14 @@ export default function BlackjackTable() {
             </button>
             <button
               className="disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
-              style={buttonStyle}
+              style={btnStyle}
               disabled={true}
             >
               Double
             </button>
             <button
               className="disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
-              style={{ ...buttonStyle, opacity: 0.5 }}
+              style={{ ...btnStyle, opacity: 0.5 }}
               disabled={true}
             >
               Split
@@ -206,7 +206,7 @@ const controlsStyle = {
   marginBottom: 16,
 };
 
-const buttonStyle = {
+const btnStyle = {
   padding: '12px 16px',
   borderRadius: 10,
   border: '1px solid ',

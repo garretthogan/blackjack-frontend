@@ -35,7 +35,7 @@ export default function Shop() {
   const [tab, setTab] = useState('Hexes');
   const [credits, setCredits] = useState(1200);
   const [rerollCost, setRerollCost] = useState(50);
-  const [discount, setDiscount] = useState(0);
+  const [discount, setDiscount] = useState(0); // % discount from voucher
   const [items, setItems] = useState(() => rollShop(tab));
 
   function rollShop(whichTab) {
@@ -66,7 +66,7 @@ export default function Shop() {
     if (credits < cost) return;
     setCredits(c => c - cost);
     setItems(rollShop(tab));
-    setRerollCost(r => Math.round(r * 1.6));
+    setRerollCost(r => Math.round(r * 1.6)); // escalate cost
   };
 
   return (

@@ -16,7 +16,7 @@ export default function DeckViewer({ cards, jokers, title = 'Deck & Jokers' }) {
     );
   }, [isLiveMode, cards, mockDeck]);
 
-  const jokerList = isLiveMode ? jokers || [] : mockJokers;
+  const jokers = isLiveMode ? jokers || [] : mockJokers;
 
   const [query, setQuery] = useState('');
   const filteredDeck = useMemo(() => {
@@ -48,7 +48,7 @@ export default function DeckViewer({ cards, jokers, title = 'Deck & Jokers' }) {
 
       <div style={metaBarStyle}>
         <div style={badgeStyle}>Deck: {deck.length}</div>
-        <div style={badgeStyle}>Jokers: {jokerList.length}</div>
+        <div style={badgeStyle}>Jokers: {jokers.length}</div>
       </div>
 
       <div style={controlsStyle}>
@@ -74,11 +74,11 @@ export default function DeckViewer({ cards, jokers, title = 'Deck & Jokers' }) {
       </div>
 
       <div style={columnsStyle}>
-        <section style={deckColumnStyle} aria-label="Deck list">
+        <section style={deckColStyle} aria-label="Deck list">
           <h2 style={sectionTitleStyle}>{isLiveMode ? 'Remaining Deck' : 'Deck'}</h2>
           <div style={deckListStyle}>
-            {filteredDeck.map(card => (
-              <CardRow key={card.id} card={card} />
+            {filteredDeck.map(c => (
+              <CardRow key={c.id} card={c} />
             ))}
             {filteredDeck.length === 0 && (
               <div style={{ opacity: 0.8, padding: 12 }}>No cards match your filter.</div>
@@ -86,19 +86,19 @@ export default function DeckViewer({ cards, jokers, title = 'Deck & Jokers' }) {
           </div>
         </section>
 
-        <section style={jokerColumnStyle} aria-label="Jokers">
+        <section style={jokerColStyle} aria-label="Jokers">
           <h2 style={sectionTitleStyle}>Jokers</h2>
           <div style={jokerGridStyle}>
-            {jokerList.map(joker => (
-              <div key={joker.id} style={jokerCardStyle}>
+            {jokers.map(j => (
+              <div key={j.id} style={jokerCardStyle}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <h3 style={jokerTitleStyle}>{joker.name}</h3>
-                  <span style={rarityStyle}>{joker.rarity || 'Owned'}</span>
+                  <h3 style={jokerTitleStyle}>{j.name}</h3>
+                  <span style={rarityStyle}>{j.rarity || 'Owned'}</span>
                 </div>
-                <p style={jokerDescStyle}>{joker.desc}</p>
+                <p style={jokerDescStyle}>{j.desc}</p>
               </div>
             ))}
-            {jokerList.length === 0 && (
+            {jokers.length === 0 && (
               <div style={{ opacity: 0.8, padding: 12 }}>No jokers.</div>
             )}
           </div>
@@ -244,14 +244,14 @@ const columnsStyle = {
   width: 'min(960px, 95vw)',
 };
 
-const deckColumnStyle = {
+const deckColStyle = {
   border: '1px dashed #333',
   borderRadius: 12,
   padding: 12,
   minHeight: 380,
 };
 
-const jokerColumnStyle = { ...deckColumnStyle };
+const jokerColStyle = { ...deckColStyle };
 
 const sectionTitleStyle = { margin: '4px 4px 12px', fontSize: 18 };
 
