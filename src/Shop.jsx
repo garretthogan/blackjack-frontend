@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import useDeckStore from './stores/deck';
 import Card from './Card';
 
