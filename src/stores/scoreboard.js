@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 
-const HANDS_PER_FLOOR = 5;
+export const HANDS_PER_FLOOR = 3;
 const useScoreboardStore = create(set => ({
+  endOfRound: false,
   roundsPlayed: 0,
   roundsWon: 0,
   roundsLost: 0,
@@ -12,24 +13,28 @@ const useScoreboardStore = create(set => ({
   lastResult: null, // { outcome: 'win'|'lose'|'push', reason: string, playerScore: number, dealerScore: number }
   addResult: (outcome, reason, playerScore, dealerScore) =>
     set(state => {
-      let { handsPlayed, handsWon, handsLost, handsPushed, roundsLost, roundsWon } =
-        state;
+      let {
+        handsPlayed,
+        handsWon,
+        handsLost,
+        handsPushed,
+        roundsLost,
+        roundsWon,
+        roundsPlayed,
+        endOfRound,
+      } = state;
       handsPlayed += 1;
-      if (outcome === 'win') handsWon += 1;
-      else if (outcome === 'lose') handsLost += 1;
-      else if (outcome === 'push') handsPushed += 1;
+
+      if (outcome === 'Win') handsWon += 1;
+      else if (outcome === 'Loss') handsLost += 1;
+      else if (outcome === 'Push') handsPushed += 1;
 
       if (handsPlayed % HANDS_PER_FLOOR === 0) {
+        endOfRound = true;
         roundsPlayed += 1;
         if (handsWon > handsLost) roundsWon += 1;
         else if (handsWon < handsLost) roundsLost += 1;
-
-        handsWon = 0;
-        handsLost = 0;
-        handsPushed = 0;
       }
-
-      console.log({ roundsLost, roundsWon, roundsPlayed });
 
       return {
         roundsLost,
@@ -39,15 +44,13 @@ const useScoreboardStore = create(set => ({
         handsWon,
         handsLost,
         handsPushed,
+        endOfRound,
         lastResult: { outcome, reason, playerScore, dealerScore },
       };
     }),
   resetScoreboard: () =>
     set(() => ({
-      handsPlayed: 0,
-      handsWon: 0,
-      handsLost: 0,
-      handsPushed: 0,
+      endOfRound: false,
       lastResult: null,
     })),
 }));

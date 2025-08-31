@@ -53,7 +53,7 @@ const usePlayerStore = create(set => ({
     })),
   startPlacingBet: () => set({ placingBets: true }),
   betPlaced: () => set({ placingBets: false }),
-  playerStands: () => set({ playerStood: true }),
+  playerStands: () => set(state => ({ playerStood: true })),
   startHand: () =>
     set({ playerHand: [], playerValue: 0, playerStood: false, placingBets: true }),
   setPlayerBet: amount => set({ playerBet: amount }),
