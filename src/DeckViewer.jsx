@@ -1,18 +1,28 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { shuffle, suitName } from './helpers';
+import { suitName } from './helpers';
+import useDeckStore from './stores/deck';
 
 export default function DeckViewer() {
   const navigate = useNavigate();
-  const [deck, setDeck] = useState(() => generateMockDeck());
+  const deck = useDeckStore(state => state.deck);
+  const shuffleStoreDeck = useDeckStore(state => state.shuffle);
   const [jokers] = useState(() => generateMockJokers());
   const [query, setQuery] = useState('');
 
-  const filteredDeck = deck.filter(c => {
+  const filteredDeck = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return true;
-    return c.rank.toLowerCase().includes(q) || c.suitName.toLowerCase().includes(q) || (c.rank + c.suit).toLowerCase().includes(q);
-  });
+    if (!q) return deck;
+    return deck.filter(c => {
+      const suit = suitName(c.suit);
+      const label = `${c.rank}${c.suit}`.toLowerCase();
+      return (
+        String(c.rank).toLowerCase().includes(q) ||
+        suit.toLowerCase().includes(q) ||
+        label.includes(q)
+      );
+    });
+  }, [deck, query]);
 
   const sortByRank = () => {
     const order = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
@@ -21,7 +31,7 @@ export default function DeckViewer() {
 
   // keep the same function name, but delegate to helpers.shuffle
   const shuffleDeck = () => {
-    setDeck(d => shuffle(d));
+    shuffleStoreDeck();
   };
 
   return (
@@ -34,7 +44,12 @@ export default function DeckViewer() {
       </div>
 
       <div style={controlsStyle}>
-        <input placeholder="Filter (e.g., A, hearts, 10♣)" value={query} onChange={e => setQuery(e.target.value)} style={inputStyle} />
+        <input
+          placeholder="Filter (e.g., A, hearts, 10♣)"
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+          style={inputStyle}
+        />
         <button style={btnStyle} onClick={sortByRank}>
           Sort by Rank
         </button>
@@ -54,7 +69,9 @@ export default function DeckViewer() {
             {filteredDeck.map(c => (
               <CardRow key={c.id} card={c} />
             ))}
-            {filteredDeck.length === 0 && <div style={{ opacity: 0.8, padding: 12 }}>No cards match your filter.</div>}
+            {filteredDeck.length === 0 && (
+              <div style={{ opacity: 0.8, padding: 12 }}>No cards match your filter.</div>
+            )}
           </div>
         </section>
 

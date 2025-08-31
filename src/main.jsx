@@ -12,8 +12,7 @@ import DeckViewer from './DeckViewer';
 import { UserProvider } from './context/UserContext';
 
 const router = createBrowserRouter([
-  { path: '/', element: <SeatAndBuyIn /> },
-  { path: '/dev/', element: <MainMenu /> },
+  { path: '/', element: <MainMenu /> },
   { path: '/blackjack', element: <Blackjack /> },
   { path: '/seat-buy-in', element: <SeatAndBuyIn /> },
   { path: '/deck-select', element: <DeckSelect /> },

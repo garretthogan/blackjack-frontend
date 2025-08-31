@@ -25,6 +25,7 @@ function shuffleDeck(deck) {
 
 const useDeckStore = create((set, get) => ({
   deck: [],
+  injectedCards: [],
   drawCard: () => {
     const { deck } = get();
     if (deck.length === 0) return null;
@@ -36,10 +37,18 @@ const useDeckStore = create((set, get) => ({
     set(state => ({
       deck: shuffleDeck(state.deck),
     })),
-  resetDeck: () =>
-    set(() => ({
-      deck: shuffleDeck(generateDeck()),
-    })),
+  resetDeck: () => {
+    const base = generateDeck();
+    const extras = get().injectedCards || [];
+    const combined = [...base, ...extras];
+    set({ deck: shuffleDeck(combined) });
+  },
+  addCardToDeck: card =>
+    set(state => {
+      const nextInjected = [...state.injectedCards, card];
+      const nextDeck = [...state.deck, card];
+      return { injectedCards: nextInjected, deck: nextDeck };
+    }),
 }));
 
 export default useDeckStore;
