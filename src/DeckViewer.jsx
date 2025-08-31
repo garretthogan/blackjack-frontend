@@ -29,11 +29,6 @@ export default function DeckViewer() {
     setDeck(d => [...d].sort((a, b) => order.indexOf(a.rank) - order.indexOf(b.rank)));
   };
 
-  // keep the same function name, but delegate to helpers.shuffle
-  const shuffleDeck = () => {
-    shuffleStoreDeck();
-  };
-
   return (
     <div style={containerStyle}>
       <h1 style={titleStyle}>Deck & Jokers</h1>
@@ -53,7 +48,7 @@ export default function DeckViewer() {
         <button style={btnStyle} onClick={sortByRank}>
           Sort by Rank
         </button>
-        <button style={btnStyle} onClick={shuffleDeck}>
+        <button style={btnStyle} onClick={shuffleStoreDeck()}>
           Shuffle
         </button>
         <button style={btnStyle} onClick={() => setQuery('')}>
