@@ -48,7 +48,7 @@ export default function DeckViewer() {
         <button style={btnStyle} onClick={sortByRank}>
           Sort by Rank
         </button>
-        <button style={btnStyle} onClick={shuffleStoreDeck()}>
+        <button style={btnStyle} onClick={shuffleStoreDeck}>
           Shuffle
         </button>
         <button style={btnStyle} onClick={() => setQuery('')}>

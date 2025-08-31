@@ -6,7 +6,7 @@ import Card from './Card';
 
 /** Minimal mock catalog pools */
 const POOLS = {
-  Cards: [
+  Packs: [
     {
       id: 'pack_standard',
       name: 'Card Pack',
