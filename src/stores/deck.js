@@ -41,7 +41,7 @@ const useDeckStore = create((set, get) => ({
   },
   addCardToDeck: card =>
     set(state => ({
-      deck: [...state.deck, card],
+      deck: shuffleDeck({ ...state.deck, card }),
     })),
 }));
 
