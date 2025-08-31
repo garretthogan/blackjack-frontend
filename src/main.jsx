@@ -13,8 +13,6 @@ import { UserProvider } from './context/UserContext';
 
 const basename = process.env.NODE_ENV === 'development' ? '' : '/blackjack-frontend/';
 
-console.log(process.env.NODE_ENV, basename);
-
 const router = createBrowserRouter(
   [
     { path: '/', element: <SeatAndBuyIn /> },

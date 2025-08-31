@@ -5,6 +5,7 @@ import usePlayerStore from './stores/player';
 import useDeckStore from './stores/deck';
 import RoundResultModal from './RoundResultModal';
 import useScoreboardStore from './stores/scoreboard';
+import { useCallback, useEffect } from 'react';
 
 const titleStyle = { margin: '16px 0 8px', fontSize: 28 };
 const handAreaStyle = {
@@ -98,25 +99,13 @@ export default function BlackjackTable({}) {
     loadShoe();
   };
 
-  if (playerStood && !lastResult) {
-    if (playerValue < 21 && dealerValue <= 17) {
-      addDealerCards([drawCard()]);
-    } else if (playerValue <= 21 && dealerValue > 21) {
-      addResult('Win', 'Dealer busted', playerValue, dealerValue);
-    } else if (playerValue === 21) {
-      addResult('Win', 'Blackjack!', playerValue, dealerValue);
-    } else if (playerValue > 21) {
-      addResult('Loss', 'Busted', playerValue, dealerValue);
-    } else if (playerValue < 21) {
-      if (playerValue < dealerValue) {
-        addResult('Loss', 'Dealer wins', playerValue, dealerValue);
-      } else if (playerValue > dealerValue) {
-        addResult('Win', 'Player wins', playerValue, dealerValue);
-      } else if (dealerValue === playerValue) {
-        addResult('Push', 'Push', playerValue, dealerValue);
+  useEffect(() => {
+    if (playerStood && !lastResult) {
+      if (playerValue < 21 && dealerValue <= 17) {
+        addDealerCards([drawCard()]);
       }
     }
-  }
+  }, [playerValue, dealerValue, playerStood, lastResult]);
 
   if (!playerStood && playerValue > 21 && !lastResult) {
     playerStands();
@@ -133,7 +122,7 @@ export default function BlackjackTable({}) {
   return (
     <div>
       <RoundResultModal
-        isOpen={playerStood && lastResult && !isDealerThinking}
+        isOpen={playerStood && !isDealerThinking}
         onClose={startPlacingBet}
       />
       {isDealerThinking && (

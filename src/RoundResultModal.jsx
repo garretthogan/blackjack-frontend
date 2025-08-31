@@ -1,9 +1,24 @@
 import { useNavigate } from 'react-router';
 import { useUser } from './context/UserContext';
-import useScoreboardStore from './stores/scoreboard';
+import useScoreboardStore, { HANDS_PER_FLOOR } from './stores/scoreboard';
+import { buttonClass, buttonRowClass, modalClass, overlayClass } from './theme';
+import usePlayerStore from './stores/player';
+import useDealerStore from './stores/dealer';
+import { useEffect } from 'react';
 
 export default function RoundResultModal({ isOpen, onClose }) {
-  const { lastResult } = useScoreboardStore();
+  const {
+    lastResult,
+    roundsWon,
+    roundsLost,
+    roundsPlayed,
+    endOfRound,
+    handsWon,
+    handsLost,
+    addResult,
+  } = useScoreboardStore();
+  const { playerStood, playerValue } = usePlayerStore();
+  const { dealerValue } = useDealerStore();
   const { balance, setStartingBank, bankCap } = useUser();
   const navigate = useNavigate();
 
@@ -12,89 +27,91 @@ export default function RoundResultModal({ isOpen, onClose }) {
   const stop = e => e.stopPropagation();
   const isGameOver = balance <= 0;
 
-  const outcomeTitle =
-    {
-      blackjack: 'Blackjack',
-      charlie: 'Five-Card Charlie',
-      win: 'Win',
-      push: 'Push',
-      loss: 'Loss',
-    }[lastResult.outcome] || 'Result';
+  const outcomeColor =
+    (lastResult &&
+      {
+        ['Blackjack']: 'text-green-500',
+        ['Five-Card Charlie']: 'text-pink-500',
+        ['Win']: 'text-green-500',
+        ['Push']: 'text-amber-500',
+        ['Loss']: 'text-red-500',
+      }[lastResult.outcome]) ||
+    'text-white';
+
+  if (playerStood && !lastResult) {
+    if (playerValue <= 21 && dealerValue > 21) {
+      addResult('Win', 'Dealer busted', playerValue, dealerValue);
+    } else if (playerValue === 21) {
+      addResult('Win', 'Blackjack!', playerValue, dealerValue);
+    } else if (playerValue > 21) {
+      addResult('Loss', 'Busted', playerValue, dealerValue);
+    } else if (playerValue < 21) {
+      if (playerValue < dealerValue) {
+        addResult('Loss', 'Dealer wins', playerValue, dealerValue);
+      } else if (playerValue > dealerValue) {
+        addResult('Win', 'Player wins', playerValue, dealerValue);
+      } else if (dealerValue === playerValue) {
+        addResult('Push', 'Push', playerValue, dealerValue);
+      }
+    }
+  }
 
   return (
-    <div style={overlayStyle}>
-      <div style={modalStyle} onClick={stop}>
-        <h2 style={titleStyle}>{outcomeTitle}</h2>
-        <p style={messageStyle}>{lastResult.reason}</p>
-        <p style={totalsStyle}>
-          Player {lastResult.playerScore ?? '—'} vs Dealer {lastResult.dealerScore ?? '—'}
-        </p>
+    <div className={overlayClass}>
+      <div className={modalClass} onClick={stop}>
+        <div className="py-2">
+          <h2 className="text-4xl">Round {roundsPlayed + 1}</h2>
+        </div>
+        {!endOfRound && (
+          <div>
+            <h2 className="text-lg">Hand Result</h2>
+            <p className={`${outcomeColor}`}>{lastResult?.reason}</p>
+            <p className={`mt-0 mb-4 ${outcomeColor}`}>
+              {lastResult?.playerScore ?? '—'} vs Dealer: {lastResult?.dealerScore ?? '—'}
+            </p>
+          </div>
+        )}
 
+        {endOfRound && (
+          <div>
+            <p className={`${outcomeColor}`}>{lastResult?.reason}</p>
+            <p className={`mt-0 mb-4 ${outcomeColor}`}>
+              {lastResult?.playerScore ?? '—'} vs Dealer: {lastResult?.dealerScore ?? '—'}
+            </p>
+            <h2 className="mt-2">Round Result</h2>
+            {handsWon > handsLost && (
+              <p className="text-green-500">You won this round!</p>
+            )}
+            {handsWon < handsLost && <p className="text-red-500">You lost this round!</p>}
+            <div className="mb-2">
+              Rounds Won: <p className="inline text-green-500">{roundsWon}</p> | Rounds
+              Lost:&nbsp;
+              <p className="inline text-red-500">{roundsLost}</p>
+            </div>
+          </div>
+        )}
         {isGameOver ? (
-          <div style={buttonRowStyle}>
+          <div className={buttonRowClass}>
             <button
-              style={buttonStyle}
+              className={buttonClass}
               onClick={() => {
                 setStartingBank(bankCap || 1000);
                 onClose();
               }}
             >
-              Restart Round
+              Restart
             </button>
-            <button style={buttonStyle} onClick={() => navigate('/')}>
+            <button className={buttonClass} onClick={() => navigate('/')}>
               Main Menu
             </button>
           </div>
         ) : (
-          <button style={buttonStyle} onClick={() => onClose()}>
-            Play Again
+          <button className={buttonClass} onClick={() => onClose()}>
+            Next Hand
           </button>
         )}
+        <p className="py-2 text-xs">1 Round = {HANDS_PER_FLOOR} Hands</p>
       </div>
     </div>
   );
 }
-
-const overlayStyle = {
-  position: 'fixed',
-  inset: 0,
-  background: 'rgba(0,0,0,0.6)',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  zIndex: 1000,
-};
-
-const modalStyle = {
-  background: '#222',
-  padding: 24,
-  borderRadius: 12,
-  color: '#eee',
-  textAlign: 'center',
-  minWidth: 340,
-  border: '1px solid #555',
-};
-
-const titleStyle = { marginTop: 0, marginBottom: 4, fontSize: 22 };
-
-const messageStyle = { margin: 0, opacity: 0.95 };
-
-const totalsStyle = { marginTop: 6, marginBottom: 0, fontWeight: 700 };
-
-const deltaStyle = { marginTop: 8, fontWeight: 800, fontSize: 18 };
-
-const buttonRowStyle = {
-  marginTop: 14,
-  display: 'flex',
-  gap: 10,
-  justifyContent: 'center',
-};
-
-const buttonStyle = {
-  padding: '8px 16px',
-  borderRadius: 8,
-  border: '1px solid #555',
-  background: '#333',
-  color: '#eee',
-  cursor: 'pointer',
-};
