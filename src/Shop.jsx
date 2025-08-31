@@ -67,7 +67,7 @@ export default function Shop() {
   const navigate = useNavigate();
   const addCardToDeck = useDeckStore(state => state.addCardToDeck);
 
-  const [tab, setTab] = useState('Cards');
+  const [tab, setTab] = useState('Packs');
   const [credits, setCredits] = useState(1200);
   const [rerollCost, setRerollCost] = useState(50);
   const [discount, setDiscount] = useState(0); // % discount from voucher
@@ -96,7 +96,7 @@ export default function Shop() {
     if (credits < cost) return;
     setCredits(c => c - cost);
 
-    if (tab === 'Cards' && item.id.startsWith('pack_')) {
+    if (tab === 'Packs' && item.id.startsWith('pack_')) {
       const count = item.packSize || 4;
       setOpenedPack({
         cards: Array.from({ length: count }, () => createRandomCard()),
@@ -140,7 +140,7 @@ export default function Shop() {
       </div>
 
       <div className="grid grid-cols-3 gap-3 w-full max-w-2xl">
-        {['Cards', 'Hexes', 'Relics'].map(t => (
+        {['Packs', 'Hexes', 'Relics'].map(t => (
           <button
             key={t}
             role="tab"
