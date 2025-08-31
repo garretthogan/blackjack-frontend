@@ -11,15 +11,21 @@ import './index.css';
 import DeckViewer from './DeckViewer';
 import { UserProvider } from './context/UserContext';
 
-const router = createBrowserRouter([
-  { path: '/', element: <MainMenu /> },
-  { path: '/blackjack', element: <Blackjack /> },
-  { path: '/seat-buy-in', element: <SeatAndBuyIn /> },
-  { path: '/deck-select', element: <DeckSelect /> },
-  { path: '/run-hub', element: <RunHub /> },
-  { path: '/shop', element: <Shop /> },
-  { path: '/deck-viewer', element: <DeckViewer /> },
-]);
+const basename = process.env.NODE_ENV === 'dev' ? '' : '/blackjack-frontend/';
+
+const router = createBrowserRouter(
+  [
+    { path: '/', element: <SeatAndBuyIn /> },
+    { path: '/dev/', element: <MainMenu /> },
+    { path: '/blackjack', element: <Blackjack /> },
+    { path: '/seat-buy-in', element: <SeatAndBuyIn /> },
+    { path: '/deck-select', element: <DeckSelect /> },
+    { path: '/run-hub', element: <RunHub /> },
+    { path: '/shop', element: <Shop /> },
+    { path: '/deck-viewer', element: <DeckViewer /> },
+  ],
+  { basename }
+);
 
 createRoot(document.getElementById('root')).render(
   <UserProvider>
