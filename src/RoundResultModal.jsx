@@ -106,14 +106,15 @@ export default function RoundResultModal({ isOpen, onClose }) {
           </div>
         )}
         <div className={buttonRowClass}>
-          <button className={buttonClass} onClick={() => navigate('/shop')}>
-            Shop
-          </button>
+          {endOfRound && (
+            <button className={buttonClass} onClick={() => navigate('/shop')}>
+              Shop
+            </button>
+          )}
           <button className={buttonClass} onClick={() => onClose()}>
             Next Hand
           </button>
         </div>
-        <p className="py-2 text-xs">1 Round = {HANDS_PER_FLOOR} Hands</p>
       </div>
     </div>
   );
