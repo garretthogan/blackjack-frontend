@@ -1,10 +1,18 @@
+import { useState } from 'react';
 import { suitName } from './helpers';
 
 export default function Card({ card }) {
   const isRed = card.suit === '♥' || card.suit === '♦';
+  const [showTooltip, setShowTooltip] = useState(false);
+  const hasEffect = !!card.effect;
+
   return (
     <div
-      className="group relative aspect-[5/7] select-none rounded-2xl bg-white ring-1 ring-black/5 shadow-[0_6px_24px_rgba(0,0,0,0.35)] transition-transform duration-200 ease-out hover:-translate-y-1.5 hover:shadow-[0_10px_28px_rgba(0,0,0,0.5)]"
+      className={`group relative aspect-[5/7] select-none rounded-2xl bg-white transition-transform duration-200 ease-out hover:-translate-y-1.5 ${
+        hasEffect
+          ? 'ring-2 ring-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.7)]'
+          : 'ring-1 ring-black/5 shadow-[0_6px_24px_rgba(0,0,0,0.35)]'
+      }`}
       style={{ width: 'clamp(96px, 12vw, 128px)' }}
       role="img"
       aria-label={`${card.rank} of ${suitName(card.suit)}`}
@@ -34,7 +42,23 @@ export default function Card({ card }) {
           {card.suit}
         </span>
       </div>
-      <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-black/5 to-transparent" />
+
+      {hasEffect && (
+        <div
+          className="absolute top-2 right-2"
+          onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+        >
+          <span className="px-1.5 py-0.5 text-[10px] font-bold bg-yellow-400 text-black rounded">
+            Effect
+          </span>
+          {showTooltip && (
+            <div className="absolute top-6 right-0 w-40 p-2 text-xs text-black bg-white border border-yellow-400 rounded shadow-lg z-20">
+              {card.effect}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
