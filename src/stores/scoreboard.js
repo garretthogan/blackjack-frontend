@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 
-export const HANDS_PER_FLOOR = 3;
+export const HANDS_PER_FLOOR = 6;
 const useScoreboardStore = create(set => ({
+  purse: 0,
   endOfRound: false,
   roundsPlayed: 0,
   roundsWon: 0,
@@ -32,8 +33,13 @@ const useScoreboardStore = create(set => ({
       if (handsPlayed % HANDS_PER_FLOOR === 0) {
         endOfRound = true;
         roundsPlayed += 1;
+
         if (handsWon > handsLost) roundsWon += 1;
-        else if (handsWon < handsLost) roundsLost += 1;
+        else if (handsWon <= handsLost) roundsLost += 1;
+
+        handsPlayed = 0;
+        handsLost = 0;
+        handsWon = 0;
       }
 
       return {
@@ -52,6 +58,18 @@ const useScoreboardStore = create(set => ({
     set(() => ({
       endOfRound: false,
       lastResult: null,
+    })),
+  withdrawFromPurse: amount =>
+    set(state => ({
+      purse: state.purse - amount,
+    })),
+  addToPurse: amount =>
+    set(state => ({
+      purse: state.purse + amount,
+    })),
+  setStartingPurse: amount =>
+    set(state => ({
+      purse: amount,
     })),
 }));
 

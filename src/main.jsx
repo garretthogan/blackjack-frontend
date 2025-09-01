@@ -15,7 +15,7 @@ const basename = process.env.NODE_ENV === 'development' ? '' : '/blackjack-front
 
 const router = createBrowserRouter(
   [
-    { path: '/', element: <SeatAndBuyIn /> },
+    { path: '/', element: <RunHub /> },
     { path: '/dev/', element: <MainMenu /> },
     { path: '/blackjack', element: <Blackjack /> },
     { path: '/seat-buy-in', element: <SeatAndBuyIn /> },

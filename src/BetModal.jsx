@@ -2,10 +2,12 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { useUser } from './context/UserContext';
 import usePlayerStore from './stores/player';
+import useScoreboardStore from './stores/scoreboard';
 
 export default function BetModal({ open, onConfirmed }) {
   const navigate = useNavigate();
-  const { balance, startHand } = useUser();
+  const { startHand } = useUser();
+  const { purse } = useScoreboardStore();
 
   const { setPlayerBet, playerBet } = usePlayerStore();
 
@@ -15,7 +17,7 @@ export default function BetModal({ open, onConfirmed }) {
 
   if (!open) return null;
 
-  const add = v => setPlayerBet(Math.min(balance, playerBet + v));
+  const add = v => setPlayerBet(Math.min(purse, playerBet + v));
   const clear = () => setPlayerBet(0);
   const autoMin = () => add(25);
 
@@ -31,7 +33,7 @@ export default function BetModal({ open, onConfirmed }) {
     <div style={overlayStyle}>
       <div style={modalStyle} onClick={e => e.stopPropagation()}>
         <h3 style={titleStyle}>Place Your Bet</h3>
-        <p style={balanceStyle}>Balance: ${balance}</p>
+        <p style={balanceStyle}>Balance: ${purse}</p>
 
         <div style={quickRowStyle}>
           {[25, 100, 500].map(v => (
