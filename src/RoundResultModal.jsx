@@ -15,6 +15,7 @@ export default function RoundResultModal({ isOpen, onClose }) {
     handsLost,
     handsPlayed,
     addResult,
+    wager,
   } = useScoreboardStore();
   const { playerStood, playerValue } = usePlayerStore();
   const { dealerValue } = useDealerStore();
@@ -58,7 +59,11 @@ export default function RoundResultModal({ isOpen, onClose }) {
       <div className={modalClass} onClick={stop}>
         <div className="py-2">
           <h1 className="text-4xl mb-2 p-2">
-            WINNINGS: $<span className="text-green-500">1000</span>
+            {lastResult.outcome === 'Win' && (
+              <span>
+                WINNINGS: $<span className="text-green-500">{wager * 2}</span>
+              </span>
+            )}
             <p className="text-sm">
               Hands remaining:&nbsp;
               <span className="text-yellow-500">{HANDS_PER_FLOOR - handsPlayed}</span>
