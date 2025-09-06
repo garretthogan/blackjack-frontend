@@ -2,10 +2,12 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { useUser } from './context/UserContext';
 import usePlayerStore from './stores/player';
+import useScoreboardStore from './stores/scoreboard';
 
 export default function BetModal({ open, onConfirmed }) {
   const navigate = useNavigate();
-  const { balance, startHand } = useUser();
+  const { startHand } = useUser();
+  const { purse, setWager } = useScoreboardStore();
 
   const { setPlayerBet, playerBet } = usePlayerStore();
 
@@ -15,23 +17,23 @@ export default function BetModal({ open, onConfirmed }) {
 
   if (!open) return null;
 
-  const add = v => setPlayerBet(Math.min(balance, playerBet + v));
+  const add = v => setPlayerBet(Math.min(purse, playerBet + v));
   const clear = () => setPlayerBet(0);
   const autoMin = () => add(25);
 
-  const place = () => {
-    if (playerBet <= 0) return;
-    const ok = startHand(playerBet);
-    if (ok && typeof onConfirmed === 'function') onConfirmed();
-  };
-
   const disabled = playerBet <= 0;
+
+  const confimrBet = () => {
+    setWager(playerBet);
+    startHand();
+    onConfirmed();
+  };
 
   return (
     <div style={overlayStyle}>
       <div style={modalStyle} onClick={e => e.stopPropagation()}>
         <h3 style={titleStyle}>Place Your Bet</h3>
-        <p style={balanceStyle}>Balance: ${balance}</p>
+        <p style={balanceStyle}>Balance: ${purse}</p>
 
         <div style={quickRowStyle}>
           {[25, 100, 500].map(v => (
@@ -52,10 +54,20 @@ export default function BetModal({ open, onConfirmed }) {
         </div>
 
         <div style={actionsRowStyle}>
-          <button style={primaryBtnStyle(disabled)} onClick={place} disabled={disabled}>
+          <button
+            style={primaryBtnStyle(disabled)}
+            onClick={confimrBet}
+            disabled={disabled}
+          >
             Place Bet
           </button>
-          <button style={secondaryBtnStyle} onClick={() => navigate('/seat-buy-in')}>
+          <button
+            style={secondaryBtnStyle}
+            onClick={() => {
+              setWager(0);
+              navigate('/seat-buy-in');
+            }}
+          >
             Reset Bank
           </button>
         </div>

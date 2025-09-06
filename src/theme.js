@@ -8,3 +8,6 @@ export const buttonRowClass = 'mt-4 flex gap-2 justify-center';
 
 export const buttonClass =
   'px-4 py-2 border border-[#555] rounded-lg text-[#eee] bg-[#333] hover:bg-[#444]';
+
+export const containerClass =
+  'min-h-screen flex flex-col items-center p-4 justify-center';

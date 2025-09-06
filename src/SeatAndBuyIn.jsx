@@ -1,25 +1,15 @@
 // src/SeatAndBuyIn.jsx
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { useUser } from './context/UserContext';
-
-const containerStyle = {
-  minHeight: '100vh',
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  color: '#eee',
-  padding: '24px',
-  fontFamily: 'sans-serif',
-};
+import useScoreboardStore from './stores/scoreboard';
+import { containerClass } from './theme';
 
 export default function SeatAndBuyIn() {
   const table = { min: 25, max: 2000, presets: [25, 100, 250, 500, 1000] };
+  const { setStartingPurse, purse } = useScoreboardStore();
 
   const [buyIn, setBuyIn] = useState(0);
   const navigate = useNavigate();
-  const { setStartingBank } = useUser();
 
   const withinLimits = useMemo(
     () => buyIn >= table.min && buyIn <= table.max,
@@ -28,19 +18,20 @@ export default function SeatAndBuyIn() {
 
   const remainingRoom = Math.max(0, table.max - buyIn);
 
-  const addBuyIn = amountToAdd =>
+  const addBuyIn = amountToAdd => {
     setBuyIn(prev => Math.min(table.max, prev + amountToAdd));
+  };
 
   const clearBuyIn = () => setBuyIn(0);
 
   const startRun = () => {
     if (!withinLimits) return;
-    setStartingBank(buyIn);
+    setStartingPurse(buyIn);
     navigate('/blackjack');
   };
 
   return (
-    <div style={containerStyle}>
+    <div className={containerClass}>
       <h1 className="text-2xl font-bold mb-4">Blackjack</h1>
       <div>
         <section className="w-[520px] max-w-[92vw] rounded-2xl border border-zinc-200 p-6 shadow-sm">

@@ -1,13 +1,21 @@
 import { useNavigate } from 'react-router';
+import useScoreboardStore from './stores/scoreboard';
 
 export default function RunHub() {
   const navigate = useNavigate();
+  const { roundsPlayed } = useScoreboardStore();
 
   return (
     <div style={pageContainerStyle}>
       <div style={cardStyle}>
         <h1 style={headingStyle}>Run Hub</h1>
-        <p style={subheadingStyle}>Current Blind Goal: 600 winnings in 3 hands</p>
+        <p className={subheadingClass}>
+          Current Blind Goal: <span className="text-amber-500">600</span> winnings in 3
+          hands
+        </p>
+        <p className={subheadingClass}>
+          Round: <span>{roundsPlayed + 1}</span>/8
+        </p>
 
         <div style={primaryActionsGridStyle}>
           <ActionButton label="Play Hand" onClick={() => navigate('/blackjack')} />
@@ -55,6 +63,7 @@ const cardStyle = {
 
 const headingStyle = { margin: 0, marginBottom: 8, fontSize: 28 };
 
+const subheadingClass = 'm-0 mb-4';
 const subheadingStyle = { margin: 0, marginBottom: 20, fontSize: 16, opacity: 0.85 };
 
 const primaryActionsGridStyle = {
