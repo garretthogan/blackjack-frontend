@@ -79,6 +79,7 @@ export default function BlackjackTable({}) {
     betPlaced,
     playerStood,
     playerBet,
+    setPlayerBet,
     playerStands,
     startPlacingBet,
     resetPlayerHand,
@@ -176,7 +177,13 @@ export default function BlackjackTable({}) {
             <button
               className="disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
               style={btnStyle}
-              disabled={true}
+              disabled={!playerHand.length === 2}
+              onClick={() => {
+                setPlayerBet(playerBet * 2);
+                addPlayerCards([drawCard()]);
+                playerStands();
+                startThinking();
+              }}
             >
               Double
             </button>
