@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { suitName } from './helpers';
 import useDeckStore from './stores/deck';
+import { containerClass, buttonClass } from './theme';
 
 export default function DeckViewer() {
   const navigate = useNavigate();
@@ -26,265 +27,147 @@ export default function DeckViewer() {
 
   const sortByRank = () => {
     const order = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
-    setDeck(d => [...d].sort((a, b) => order.indexOf(a.rank) - order.indexOf(b.rank)));
   };
 
   return (
-    <div style={containerStyle}>
-      <h1 style={titleStyle}>Deck & Jokers</h1>
+    <div className={containerClass} style={{ gap: 'var(--tui-gap-lg)', alignItems: 'center' }}>
+      <h1 style={{ margin: 0, fontSize: 28, color: 'var(--tui-fg)' }}>Deck & Jokers</h1>
 
-      <div style={metaBarStyle}>
+      <div style={{ display: 'flex', gap: 'var(--tui-gap)', alignItems: 'center' }}>
         <div style={pillStyle}>Deck: {deck.length}</div>
         <div style={pillStyle}>Jokers: {jokers.length}</div>
       </div>
 
-      <div style={controlsStyle}>
+      <div style={{ display: 'flex', gap: 'var(--tui-gap)', flexWrap: 'wrap', justifyContent: 'center', maxWidth: 960 }}>
         <input
           placeholder="Filter (e.g., A, hearts, 10♣)"
           value={query}
           onChange={e => setQuery(e.target.value)}
           style={inputStyle}
         />
-        <button style={btnStyle} onClick={sortByRank}>
+        <button className={buttonClass} onClick={sortByRank}>
           Sort by Rank
         </button>
-        <button style={btnStyle} onClick={shuffleStoreDeck}>
+        <button className={buttonClass} onClick={shuffleStoreDeck}>
           Shuffle
         </button>
-        <button style={btnStyle} onClick={() => setQuery('')}>
+        <button className={buttonClass} onClick={() => setQuery('')}>
           Clear Filter
         </button>
       </div>
 
-      <div style={columnsStyle}>
-        {/* Deck column */}
-        <section style={deckColStyle} aria-label="Deck list">
-          <h2 style={sectionTitleStyle}>Deck</h2>
-          <div style={deckListStyle}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--tui-gap-lg)', maxWidth: 960, width: '95vw' }}>
+        <section style={colStyle} aria-label="Deck list">
+          <h2 style={{ margin: '4px 4px 12px', fontSize: 18, color: 'var(--tui-fg)' }}>Deck</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--tui-gap)', maxHeight: 420, overflow: 'auto' }}>
             {filteredDeck.map(c => (
               <CardRow key={c.id} card={c} />
             ))}
             {filteredDeck.length === 0 && (
-              <div style={{ opacity: 0.8, padding: 12 }}>No cards match your filter.</div>
+              <div style={{ color: 'var(--tui-muted)', padding: 12 }}>No cards match your filter.</div>
             )}
           </div>
         </section>
 
-        {/* Jokers column */}
-        <section style={jokerColStyle} aria-label="Jokers">
-          <h2 style={sectionTitleStyle}>Jokers</h2>
-          <div style={jokerGridStyle}>
+        <section style={colStyle} aria-label="Jokers">
+          <h2 style={{ margin: '4px 4px 12px', fontSize: 18, color: 'var(--tui-fg)' }}>Jokers</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'var(--tui-gap)', maxHeight: 420, overflow: 'auto' }}>
             {jokers.map(j => (
               <div key={j.id} style={jokerCardStyle}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <h3 style={jokerTitleStyle}>{j.name}</h3>
-                  <span style={rarityStyle}>{j.rarity}</span>
+                  <h3 style={{ margin: 0, fontSize: 16, color: 'var(--tui-fg)' }}>{j.name}</h3>
+                  <span style={{ color: 'var(--tui-muted)', fontSize: 12 }}>{j.rarity}</span>
                 </div>
-                <p style={jokerDescStyle}>{j.desc}</p>
+                <p style={{ margin: 0, color: 'var(--tui-muted)', fontSize: 14 }}>{j.desc}</p>
               </div>
             ))}
           </div>
         </section>
       </div>
 
-      <button style={backButtonStyle} onClick={() => navigate('/run-hub')}>
+      <button className={buttonClass} onClick={() => navigate('/run-hub')}>
         Back to Hub
       </button>
     </div>
   );
 }
 
-/* --- Small components --- */
 function CardRow({ card }) {
   const isRed = card.suit === '♥' || card.suit === '♦';
+  const suitColor = isRed ? 'var(--tui-danger)' : 'var(--tui-fg)';
+
   return (
     <div style={rowStyle}>
-      <div style={{ ...miniCardStyle, color: isRed ? '#b00020' : '#111' }}>
+      <div style={{ ...miniCardStyle, color: suitColor }}>
         <div style={{ fontWeight: 700 }}>
           {card.rank}
           {card.suit}
         </div>
       </div>
-      <div style={rowTextStyle}>
-        <div style={{ fontWeight: 700 }}>
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <div style={{ fontWeight: 700, color: 'var(--tui-fg)' }}>
           {card.rank}
           {card.suit} — {card.suitName}
         </div>
-        <div style={{ opacity: 0.8, fontSize: 12 }}>ID: {card.id}</div>
+        <div style={{ color: 'var(--tui-muted)', fontSize: 12 }}>ID: {card.id}</div>
       </div>
     </div>
   );
 }
 
-/* --- Mock data --- */
-function generateMockDeck() {
-  // smaller sample for the viewer (could be the whole 52 later)
-  const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
-  const suits = ['♠', '♥', '♦', '♣'];
-  const sample = [];
-  for (let i = 0; i < 16; i++) {
-    const r = ranks[(i * 3) % ranks.length];
-    const s = suits[(i * 5) % suits.length];
-    sample.push({
-      id: `c_${i}_${r}${s}`,
-      rank: r,
-      suit: s,
-      suitName: suitName(s),
-    });
-  }
-  return sample;
-}
-
 function generateMockJokers() {
   return [
-    {
-      id: 'jk_counter',
-      name: 'Card Counter',
-      rarity: 'Common',
-      desc: '+1x multiplier per card drawn this hand.',
-    },
-    {
-      id: 'jk_pit',
-      name: 'Pit Boss',
-      rarity: 'Rare',
-      desc: 'x2 payout if final hand total is exactly 20.',
-    },
-    {
-      id: 'jk_ins',
-      name: 'Insurance Salesman',
-      rarity: 'Uncommon',
-      desc: 'Gain small payout on bust.',
-    },
-    {
-      id: 'jk_split',
-      name: 'Split Master',
-      rarity: 'Uncommon',
-      desc: 'Pairs can be split for double scoring.',
-    },
+    { id: 'jk_counter', name: 'Card Counter', rarity: 'Common', desc: '+1x multiplier per card drawn this hand.' },
+    { id: 'jk_pit', name: 'Pit Boss', rarity: 'Rare', desc: 'x2 payout if final hand total is exactly 20.' },
+    { id: 'jk_ins', name: 'Insurance Salesman', rarity: 'Uncommon', desc: 'Gain small payout on bust.' },
+    { id: 'jk_split', name: 'Split Master', rarity: 'Uncommon', desc: 'Pairs can be split for double scoring.' },
   ];
 }
 
-/* --- Styles --- */
-const containerStyle = {
-  minHeight: '100vh',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 12,
-  color: '#eee',
-  padding: 24,
-  fontFamily: 'sans-serif',
-  alignItems: 'center',
-};
-
-const titleStyle = { margin: 0, fontSize: 28 };
-const metaBarStyle = { display: 'flex', gap: 8, alignItems: 'center' };
 const pillStyle = {
-  padding: '6px 10px',
-  border: '1px solid ',
-  borderRadius: 999,
+  padding: 'var(--tui-pad-1) var(--tui-pad-2)',
+  border: '1px solid var(--tui-line)',
   fontSize: 12,
   fontWeight: 700,
-};
-
-const controlsStyle = {
-  display: 'flex',
-  gap: 8,
-  flexWrap: 'wrap',
-  justifyContent: 'center',
-  width: 'min(960px, 95vw)',
+  color: 'var(--tui-fg)',
 };
 
 const inputStyle = {
   flex: '1 1 260px',
   minWidth: 220,
-  padding: '10px 12px',
-  borderRadius: 10,
-  border: '1px solid ',
-  color: '#eee',
+  padding: 'var(--tui-pad-2)',
+  border: '2px solid var(--tui-line-strong)',
+  background: 'transparent',
+  color: 'var(--tui-fg)',
 };
 
-const btnStyle = {
-  padding: '10px 14px',
-  borderRadius: 10,
-  border: '1px solid ',
-  color: '#eee',
-  cursor: 'pointer',
-};
-
-const columnsStyle = {
-  display: 'grid',
-  gridTemplateColumns: '1fr 1fr',
-  gap: 16,
-  width: 'min(960px, 95vw)',
-};
-
-const deckColStyle = {
-  border: '1px dashed #333',
-  borderRadius: 12,
-  padding: 12,
+const colStyle = {
+  border: '1px dashed var(--tui-line)',
+  padding: 'var(--tui-pad-3)',
   minHeight: 380,
-};
-const jokerColStyle = { ...deckColStyle };
-
-const sectionTitleStyle = { margin: '4px 4px 12px', fontSize: 18 };
-
-const deckListStyle = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 8,
-  maxHeight: 420,
-  overflow: 'auto',
-  paddingRight: 4,
 };
 
 const rowStyle = {
   display: 'flex',
-  gap: 10,
+  gap: 'var(--tui-gap)',
   alignItems: 'center',
-  padding: 8,
-  borderRadius: 10,
-  border: '1px solid ',
+  padding: 'var(--tui-pad-1)',
+  border: '1px solid var(--tui-line)',
 };
 
 const miniCardStyle = {
   width: 44,
   height: 60,
-  borderRadius: 6,
-  border: '1px solid ',
+  border: '1px solid var(--tui-line-strong)',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
 };
 
-const rowTextStyle = { display: 'flex', flexDirection: 'column' };
-
-const jokerGridStyle = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-  gap: 10,
-  maxHeight: 420,
-  overflow: 'auto',
-  paddingRight: 4,
-};
-
 const jokerCardStyle = {
-  border: '1px solid ',
-  borderRadius: 12,
-  padding: 12,
+  border: '1px solid var(--tui-line)',
+  padding: 'var(--tui-pad-2)',
   display: 'flex',
   flexDirection: 'column',
-  gap: 6,
-};
-
-const jokerTitleStyle = { margin: 0, fontSize: 16 };
-const rarityStyle = { opacity: 0.9, fontSize: 12, alignSelf: 'flex-start' };
-const jokerDescStyle = { margin: 0, opacity: 0.85, fontSize: 14 };
-
-const backButtonStyle = {
-  marginTop: 4,
-  padding: '10px 20px',
-  borderRadius: 8,
-  border: '1px solid ',
-  color: '#eee',
-  cursor: 'pointer',
+  gap: 'var(--tui-gap-sm)',
 };

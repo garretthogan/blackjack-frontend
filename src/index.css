@@ -2,15 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Smooth fonts + base tweaks */
-:root {
-  color-scheme: dark;
-}
-
 html,
 body,
 #root {
   height: 100%;
-
-  background-color: rgb(22 101 52 / var(--tw-bg-opacity, 1));
 }

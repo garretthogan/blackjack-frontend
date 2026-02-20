@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 import { useUser } from './context/UserContext';
 import usePlayerStore from './stores/player';
 import useScoreboardStore from './stores/scoreboard';
+import { overlayClass, modalClass, buttonClass, buttonRowClass } from './theme';
 
 export default function BetModal({ open, onConfirmed }) {
   const navigate = useNavigate();
@@ -30,43 +31,73 @@ export default function BetModal({ open, onConfirmed }) {
   };
 
   return (
-    <div style={overlayStyle}>
-      <div style={modalStyle} onClick={e => e.stopPropagation()}>
-        <h3 style={titleStyle}>Place Your Bet</h3>
-        <p style={balanceStyle}>Balance: ${purse}</p>
+    <div className={overlayClass}>
+      <div className={modalClass} onClick={e => e.stopPropagation()}>
+        <h3 className="m-0 mb-2 text-lg font-bold" style={{ color: 'var(--tui-fg)' }}>
+          Place Your Bet
+        </h3>
+        <p className="m-0 mb-3 text-sm" style={{ color: 'var(--tui-muted)' }}>
+          Balance: ${purse}
+        </p>
 
-        <div style={quickRowStyle}>
+        <div className="flex gap-3 mb-4 flex-wrap">
           {[25, 100, 500].map(v => (
-            <button key={v} style={chipBtnStyle} onClick={() => add(v)}>
+            <button key={v} className={buttonClass} onClick={() => add(v)}>
               ${v}
             </button>
           ))}
-          <button style={chipBtnStyle} onClick={autoMin}>
+          <button className={buttonClass} onClick={autoMin}>
             Auto
           </button>
         </div>
 
-        <div style={currentRowStyle}>
-          <span>Current Bet: ${playerBet}</span>
-          <button onClick={clear} disabled={playerBet === 0} style={clearBtnStyle}>
+        <div
+          className="flex items-center gap-2 p-3 mb-4"
+          style={{
+            border: '2px solid var(--tui-line-strong)',
+            color: 'var(--tui-fg)',
+          }}
+        >
+          <span>
+            Current Bet: <span style={{ color: 'var(--tui-cyan)' }}>${playerBet}</span>
+          </span>
+          <button
+            onClick={clear}
+            disabled={playerBet === 0}
+            className="ml-auto px-2 py-1"
+            style={{
+              border: '1px solid var(--tui-line-strong)',
+              background: 'transparent',
+              color: 'var(--tui-fg)',
+              cursor: playerBet === 0 ? 'not-allowed' : 'pointer',
+              opacity: playerBet === 0 ? 0.5 : 1,
+            }}
+          >
             ✕
           </button>
         </div>
 
-        <div style={actionsRowStyle}>
+        <div className={buttonRowClass}>
           <button
-            style={primaryBtnStyle(disabled)}
+            className={buttonClass}
             onClick={confimrBet}
             disabled={disabled}
+            style={{
+              borderColor: disabled ? 'var(--tui-line)' : 'var(--tui-pink)',
+              opacity: disabled ? 0.5 : 1,
+              cursor: disabled ? 'not-allowed' : 'pointer',
+              minWidth: 140,
+            }}
           >
             Place Bet
           </button>
           <button
-            style={secondaryBtnStyle}
+            className={buttonClass}
             onClick={() => {
               setWager(0);
               navigate('/seat-buy-in');
             }}
+            style={{ minWidth: 140 }}
           >
             Reset Bank
           </button>
@@ -75,83 +106,3 @@ export default function BetModal({ open, onConfirmed }) {
     </div>
   );
 }
-
-const overlayStyle = {
-  position: 'fixed',
-  inset: 0,
-  background: 'rgba(0,0,0,0.6)',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  zIndex: 1000,
-};
-
-const modalStyle = {
-  background: '#23272f',
-  color: '#e5e7eb',
-  border: '1px solid rgba(255,255,255,0.15)',
-  borderRadius: 14,
-  padding: 18,
-  width: 420,
-  maxWidth: '92vw',
-  boxShadow: '0 20px 50px rgba(0,0,0,0.45)',
-};
-
-const titleStyle = { margin: 0, marginBottom: 6, fontSize: 18, fontWeight: 700 };
-
-const balanceStyle = { margin: 0, marginBottom: 10, fontSize: 12, opacity: 0.9 };
-
-const quickRowStyle = { display: 'flex', gap: 10, marginBottom: 12, flexWrap: 'wrap' };
-
-const chipBtnStyle = {
-  padding: '8px 14px',
-  borderRadius: 10,
-  border: '1px solid rgba(255,255,255,0.25)',
-  background: 'rgba(255,255,255,0.06)',
-  color: '#e5e7eb',
-  cursor: 'pointer',
-};
-
-const currentRowStyle = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: 8,
-  padding: '10px 12px',
-  borderRadius: 10,
-  border: '1px solid rgba(255,255,255,0.25)',
-  marginBottom: 12,
-  minHeight: 44,
-};
-
-const clearBtnStyle = {
-  marginLeft: 'auto',
-  padding: '6px 10px',
-  borderRadius: 8,
-  border: '1px solid rgba(255,255,255,0.25)',
-  background: 'transparent',
-  color: '#e5e7eb',
-  cursor: 'pointer',
-  opacity: 0.9,
-};
-
-const actionsRowStyle = { display: 'flex', gap: 10, justifyContent: 'center' };
-
-const primaryBtnStyle = disabled => ({
-  padding: '10px 16px',
-  borderRadius: 10,
-  border: '1px solid rgba(255,255,255,0.25)',
-  background: disabled ? 'rgba(255,255,255,0.10)' : '#111827',
-  color: '#e5e7eb',
-  cursor: disabled ? 'not-allowed' : 'pointer',
-  minWidth: 140,
-});
-
-const secondaryBtnStyle = {
-  padding: '10px 16px',
-  borderRadius: 10,
-  border: '1px solid rgba(255,255,255,0.25)',
-  background: 'transparent',
-  color: '#e5e7eb',
-  cursor: 'pointer',
-  minWidth: 140,
-};

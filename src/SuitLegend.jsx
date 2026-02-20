@@ -1,20 +1,60 @@
 export default function SuitLegend({ title, cards, color }) {
+  const isRed = color?.includes('red');
+  const textColor = isRed ? 'var(--tui-danger)' : 'var(--tui-fg)';
+
   return (
-    <div className="rounded-2xl border border-stone-800/60 p-3">
-      <div className="mb-2 flex items-center gap-2">
+    <div
+      style={{
+        border: '1px solid var(--tui-line)',
+        padding: 'var(--tui-pad-2)',
+      }}
+    >
+      <div
+        style={{
+          marginBottom: 'var(--tui-gap)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 'var(--tui-gap)',
+        }}
+      >
         <span
-          className={`inline-block h-2 w-2 rounded-full ${color.replace('text', 'bg')}`}
+          style={{
+            display: 'inline-block',
+            height: 8,
+            width: 8,
+            background: textColor,
+          }}
         />
-        <h3 className="text-sm font-semibold tracking-wide text-stone-200">{title}</h3>
-        <span className="ml-auto text-xs text-stone-400 tabular-nums">
+        <h3
+          style={{
+            margin: 0,
+            fontSize: 'var(--tui-font-size-sm)',
+            fontWeight: 600,
+            color: 'var(--tui-fg)',
+          }}
+        >
+          {title}
+        </h3>
+        <span
+          style={{
+            marginLeft: 'auto',
+            fontSize: 'var(--tui-font-size-sm)',
+            color: 'var(--tui-muted)',
+          }}
+        >
           {cards.length}
         </span>
       </div>
-      <div className="flex flex-wrap gap-1">
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--tui-gap-sm)' }}>
         {cards.map(c => (
           <span
             key={`${c.rank}-${c.suit}`}
-            className="rounded-md bg-stone-900/60 px-1.5 py-0.5 text-xs text-stone-300 ring-1 ring-stone-700/60"
+            style={{
+              padding: '2px 6px',
+              fontSize: 'var(--tui-font-size-sm)',
+              color: textColor,
+              border: '1px solid var(--tui-line)',
+            }}
           >
             {c.rank}
             {c.suit}

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useUser } from './context/UserContext';
+import { containerClass, modalClass, buttonClass } from './theme';
 
 export default function AnteScreen() {
   const navigate = useNavigate();
@@ -14,15 +15,21 @@ export default function AnteScreen() {
   };
 
   return (
-    <div style={wrap}>
-      <div style={card}>
-        <h1 style={title}>Choose Starting Bank</h1>
+    <div className={containerClass}>
+      <div className={modalClass} style={{ minWidth: 'min(560px, 92vw)' }}>
+        <h1 style={{ margin: 0, marginBottom: 'var(--tui-gap-lg)', fontSize: 24, fontWeight: 800, color: 'var(--tui-fg)' }}>
+          Choose Starting Bank
+        </h1>
 
-        <div style={chips}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--tui-gap)', marginBottom: 'var(--tui-gap-lg)' }}>
           {presets.map(p => (
             <button
               key={p}
-              style={chip}
+              className={buttonClass}
+              style={{
+                minWidth: 96,
+                borderColor: val === p ? 'var(--tui-pink)' : undefined,
+              }}
               onClick={() => setVal(p)}
               aria-pressed={val === p}
             >
@@ -31,22 +38,33 @@ export default function AnteScreen() {
           ))}
         </div>
 
-        <div style={row}>
-          <label style={{ opacity: 0.85 }}>Custom</label>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--tui-gap)', marginBottom: 'var(--tui-gap-lg)' }}>
+          <label style={{ color: 'var(--tui-muted)' }}>Custom</label>
           <input
             type="number"
             min={0}
             value={val}
             onChange={e => setVal(Math.max(0, Math.floor(Number(e.target.value) || 0)))}
-            style={input}
+            style={{
+              width: 160,
+              padding: 'var(--tui-pad-1) var(--tui-pad-2)',
+              border: '2px solid var(--tui-line-strong)',
+              background: 'transparent',
+              color: 'var(--tui-fg)',
+              fontWeight: 700,
+            }}
           />
         </div>
 
-        <div style={actions}>
-          <button style={btnPrimary} onClick={confirm}>
+        <div style={{ display: 'flex', gap: 'var(--tui-gap)', justifyContent: 'center' }}>
+          <button
+            className={buttonClass}
+            style={{ borderColor: 'var(--tui-pink)' }}
+            onClick={confirm}
+          >
             Start
           </button>
-          <button style={btn} onClick={() => navigate('/run-hub')}>
+          <button className={buttonClass} onClick={() => navigate('/run-hub')}>
             Back
           </button>
         </div>
@@ -54,74 +72,3 @@ export default function AnteScreen() {
     </div>
   );
 }
-
-const wrap = {
-  minHeight: '100vh',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  background: '#0f5132',
-  color: '#eee',
-  fontFamily: 'sans-serif',
-};
-
-const card = {
-  width: 'min(560px, 92vw)',
-  border: '1px solid rgba(255,255,255,0.15)',
-  borderRadius: 16,
-  padding: 24,
-  background: 'rgba(0,0,0,0.25)',
-  backdropFilter: 'blur(4px)',
-  boxShadow: '0 16px 40px rgba(0,0,0,0.35)',
-};
-
-const title = { margin: 0, marginBottom: 12, fontSize: 24, fontWeight: 800 };
-
-const chips = {
-  display: 'flex',
-  flexWrap: 'wrap',
-  gap: 10,
-  marginTop: 8,
-  marginBottom: 16,
-};
-
-const chip = {
-  minWidth: 96,
-  padding: '10px 14px',
-  borderRadius: 12,
-  border: '1px solid rgba(255,255,255,0.2)',
-  background: 'rgba(255,255,255,0.06)',
-  color: '#e5e7eb',
-  fontWeight: 800,
-  cursor: 'pointer',
-};
-
-const row = { display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 };
-
-const input = {
-  width: 160,
-  padding: '8px 10px',
-  borderRadius: 10,
-  border: '1px solid rgba(255,255,255,0.25)',
-  background: 'rgba(255,255,255,0.06)',
-  color: '#e5e7eb',
-  fontWeight: 700,
-};
-
-const actions = { display: 'flex', gap: 10, justifyContent: 'center' };
-
-const btn = {
-  padding: '10px 16px',
-  borderRadius: 10,
-  border: '1px solid rgba(255,255,255,0.25)',
-  background: 'rgba(255,255,255,0.06)',
-  color: '#e5e7eb',
-  cursor: 'pointer',
-};
-
-const btnPrimary = {
-  ...btn,
-  border: '1px solid #111',
-  background: '#111',
-  color: '#fff',
-};

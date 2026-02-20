@@ -31,8 +31,11 @@ export default function Hand({ cards, isDealer = false }) {
       )}
 
       {n === 0 && !isDealer && (
-        <div className="grid h-full place-items-center text-emerald-300/70">
-          Your hand is empty. Press “Hit (Draw)”.
+        <div
+          className="grid h-full place-items-center"
+          style={{ color: 'var(--tui-muted)' }}
+        >
+          Your hand is empty. Press "Hit (Draw)".
         </div>
       )}
     </div>

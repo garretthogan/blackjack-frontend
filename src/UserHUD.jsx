@@ -27,29 +27,32 @@ const hudBarStyle = {
   left: '50%',
   transform: 'translateX(-50%)',
   display: 'flex',
-  gap: 12,
-  padding: 8,
-  background: 'rgba(0,0,0,0.55)',
-  border: '1px solid rgba(255,255,255,0.15)',
-  borderRadius: 16,
-  color: '#eee',
+  gap: 'var(--tui-gap-lg)',
+  padding: 'var(--tui-pad-2)',
+  background: 'var(--tui-bg)',
+  border: '2px solid var(--tui-line-strong)',
+  color: 'var(--tui-fg)',
   zIndex: 1200,
-  boxShadow: '0 12px 28px rgba(0,0,0,0.45)',
-  backdropFilter: 'blur(4px)',
 };
 
 const pillStyle = {
   display: 'flex',
   alignItems: 'center',
-  gap: 8,
-  padding: '6px 10px',
-  borderRadius: 10,
-  background: 'rgba(255,255,255,0.06)',
-  border: '1px solid rgba(255,255,255,0.12)',
+  gap: 'var(--tui-gap)',
+  padding: 'var(--tui-pad-1) var(--tui-pad-2)',
+  border: '1px solid var(--tui-line)',
+  background: 'transparent',
   minWidth: 92,
   justifyContent: 'space-between',
 };
 
-const labelStyle = { fontSize: 12, opacity: 0.85 };
+const labelStyle = {
+  fontSize: 'var(--tui-font-size-sm)',
+  color: 'var(--tui-muted)',
+};
 
-const valueStyle = { fontWeight: 800, fontSize: 14 };
+const valueStyle = {
+  fontWeight: 700,
+  fontSize: 'var(--tui-font-size)',
+  color: 'var(--tui-cyan)',
+};

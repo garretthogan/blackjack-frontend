@@ -1,122 +1,110 @@
 import { useNavigate } from 'react-router';
+import { buttonClass } from './theme';
 
-/**
- * Blackjack Landing Page (React + Tailwind)
- * - Single-file component
- * - Responsive, accessible, keyboard-friendly
- * - Matches the grayscale wireframe structure
- */
 export default function LandingPage() {
-  const handleQuickPlay = () => alert('Quick Play: joining a low-stakes table...');
-  const handleChooseTable = () => alert('Open table picker modal (not implemented)');
-  const handleSignIn = () => alert('Open sign-in (not implemented)');
-  const handlePlayTier = tier => () => alert(`Joining ${tier} stakes table...`);
-
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <header className="sticky top-0 z-10 border-b border-zinc-200 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between p-4">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg " aria-hidden />
-            <span className="font-semibold tracking-tight cursor-pointer">Blackjack</span>
-          </div>
-          <nav className="flex items-center gap-3 text-sm">
-            <button className="rounded-lg border border-zinc-300 px-3 py-1.5 hover:bg-zinc-100" onClick={() => alert('Open settings')}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <header
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 10,
+          borderBottom: '1px solid var(--tui-line)',
+          background: 'var(--tui-bg)',
+        }}
+      >
+        <div
+          style={{
+            maxWidth: '1152px',
+            margin: '0 auto',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: 'var(--tui-pad-2)',
+          }}
+        >
+          <span style={{ fontWeight: 600, color: 'var(--tui-fg)', cursor: 'pointer' }}>
+            Blackjack
+          </span>
+          <nav style={{ display: 'flex', alignItems: 'center', gap: 'var(--tui-gap)' }}>
+            <button className={buttonClass} onClick={() => alert('Open settings')}>
               Settings
             </button>
-            <button
-              className="rounded-lg border border-zinc-300 px-3 py-1.5 hover:bg-zinc-100"
-              onClick={() => alert('Show how to play overlay')}
-            >
+            <button className={buttonClass} onClick={() => alert('Show how to play overlay')}>
               How to Play
             </button>
           </nav>
         </div>
       </header>
 
-      {/* Hero */}
-      <section className="mx-auto max-w-4xl px-4 py-12 sm:py-16">
-        <h1 className="text-center text-3xl font-extrabold tracking-tight sm:text-5xl">ROGUELIKE BLACKJACK</h1>
-        <p className="mx-auto mt-3 max-w-xl text-center ">Jump in with Quick Play or choose a table that fits your stakes.</p>
+      <section
+        style={{
+          maxWidth: '896px',
+          margin: '0 auto',
+          padding: '48px 16px',
+          textAlign: 'center',
+          flex: 1,
+        }}
+      >
+        <h1
+          style={{
+            fontSize: 'clamp(24px, 5vw, 48px)',
+            fontWeight: 800,
+            color: 'var(--tui-fg)',
+            letterSpacing: '-0.02em',
+          }}
+        >
+          ROGUELIKE BLACKJACK
+        </h1>
+        <p
+          style={{
+            maxWidth: '560px',
+            margin: '12px auto 0',
+            color: 'var(--tui-muted)',
+          }}
+        >
+          Jump in with Quick Play or choose a table that fits your stakes.
+        </p>
 
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-3 text-zinc-600">
+        <div
+          style={{
+            marginTop: 24,
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 'var(--tui-gap-lg)',
+          }}
+        >
           <button
-            onClick={() => {
-              navigate('/blackjack');
-            }}
-            className="inline-flex items-center gap-2 rounded-xl border border-zinc-300 bg-white px-5 py-3 text-sm font-medium shadow-sm hover:bg-zinc-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
+            className={buttonClass}
+            style={{ borderColor: 'var(--tui-pink)' }}
+            onClick={() => navigate('/blackjack')}
           >
             Quick Play
           </button>
-          <button
-            onClick={() => {
-              navigate('/seat-buy-in');
-            }}
-            className="rounded-xl border border-zinc-300 bg-white px-5 py-3 text-sm font-medium shadow-sm hover:bg-zinc-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
-          >
+          <button className={buttonClass} onClick={() => navigate('/seat-buy-in')}>
             Choose Table
           </button>
-          <button
-            onClick={() => {}}
-            className="rounded-xl border border-zinc-300 bg-white px-5 py-3 text-sm font-medium shadow-sm hover:bg-zinc-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
-          >
+          <button className={buttonClass} onClick={() => {}}>
             Sign In
           </button>
         </div>
       </section>
 
-      {/* Table Presets */}
-      {/* <section className="mx-auto max-w-4xl px-4 pb-20">
-                <h2 className="mb-4 text-lg font-semibold tracking-tight">Table Presets</h2>
-                <ul className="grid gap-3 sm:grid-cols-2">
-                    <PresetCard
-                        title="Low Stakes"
-                        range="$1–$10"
-                        onPlay={handlePlayTier("low")}
-                    />
-                    <PresetCard
-                        title="Mid Stakes"
-                        range="$10–$100"
-                        onPlay={handlePlayTier("mid")}
-                    />
-                    <PresetCard
-                        title="High Stakes"
-                        range="$100+"
-                        onPlay={handlePlayTier("high")}
-                    />
-                    <PresetCard
-                        title="Custom Rules"
-                        range="Set decks, S17/H17, DAS, RSA, Surrender"
-                        onPlay={() => alert("Open custom table creator")}
-                    />
-                </ul>
-            </section> */}
-
-      {/* Footer */}
-      <footer className="border-t ">
-        <div className="mx-auto max-w-6xl px-4 py-6 text-xs text-zinc-500"></div>
+      <footer style={{ borderTop: '1px solid var(--tui-line)' }}>
+        <div
+          style={{
+            maxWidth: '1152px',
+            margin: '0 auto',
+            padding: '24px 16px',
+            fontSize: 'var(--tui-font-size-sm)',
+            color: 'var(--tui-muted)',
+          }}
+        />
       </footer>
     </div>
-  );
-}
-
-function PresetCard({ title, range, onPlay }) {
-  return (
-    <li className="group flex items-center justify-between rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:shadow-md">
-      <div>
-        <div className="text-sm font-medium">{title}</div>
-        <div className="text-xs text-zinc-500">{range}</div>
-      </div>
-      <button
-        onClick={onPlay}
-        className="rounded-xl border border-zinc-300 bg-zinc-50 px-4 py-2 text-sm font-medium text-zinc-900 transition hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
-        aria-label={`Play ${title}`}
-      >
-        Play
-      </button>
-    </li>
   );
 }

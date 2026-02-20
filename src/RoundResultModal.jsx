@@ -25,16 +25,14 @@ export default function RoundResultModal({ isOpen, onClose }) {
 
   const stop = e => e.stopPropagation();
 
-  const outcomeColor =
-    (lastResult &&
-      {
-        ['Blackjack']: 'text-green-500',
-        ['Five-Card Charlie']: 'text-pink-500',
-        ['Win']: 'text-green-500',
-        ['Push']: 'text-amber-500',
-        ['Loss']: 'text-red-500',
-      }[lastResult.outcome]) ||
-    'text-white';
+  const outcomeColorMap = {
+    ['Blackjack']: 'var(--tui-ok)',
+    ['Five-Card Charlie']: 'var(--tui-pink)',
+    ['Win']: 'var(--tui-ok)',
+    ['Push']: 'var(--tui-cyan)',
+    ['Loss']: 'var(--tui-danger)',
+  };
+  const outcomeColor = (lastResult && outcomeColorMap[lastResult.outcome]) || 'var(--tui-fg)';
 
   if (playerStood && !lastResult) {
     if (playerValue <= 21 && dealerValue > 21) {
@@ -61,52 +59,53 @@ export default function RoundResultModal({ isOpen, onClose }) {
           <h1 className="text-4xl mb-2 p-2">
             {lastResult.outcome === 'Win' && (
               <span>
-                WINNINGS: $<span className="text-green-500">{wager * 2}</span>
+                WINNINGS: $<span style={{ color: 'var(--tui-ok)' }}>{wager * 2}</span>
               </span>
             )}
-            <p className="text-sm">
-              Hands remaining:&nbsp;
-              <span className="text-yellow-500">{HANDS_PER_FLOOR - handsPlayed}</span>
+            <p className="text-sm" style={{ color: 'var(--tui-muted)' }}>
+              Hands remaining:{' '}
+              <span style={{ color: 'var(--tui-cyan)' }}>{HANDS_PER_FLOOR - handsPlayed}</span>
             </p>
           </h1>
         </div>
         {!endOfRound && (
           <div>
             <h2 className="text-lg">Result</h2>
-            <p className={`${outcomeColor} text-xs`}>{lastResult?.reason}</p>
+            <p className="text-xs" style={{ color: outcomeColor }}>
+              {lastResult?.reason}
+            </p>
             <div className="mb-2 text-xl mt-2">
-              <p className={`mt-0 ${outcomeColor}`}>
-                {lastResult?.playerScore ?? '—'} vs Dealer:{' '}
-                {lastResult?.dealerScore ?? '—'}
+              <p className="mt-0" style={{ color: outcomeColor }}>
+                {lastResult?.playerScore ?? '—'} vs Dealer: {lastResult?.dealerScore ?? '—'}
               </p>
             </div>
             <p className="inline">
-              W:&nbsp;<span className="text-green-500 mt-2">{handsWon}</span>
+              W: <span style={{ color: 'var(--tui-ok)' }}>{handsWon}</span>
             </p>
             &nbsp;
             <div className="inline">
-              L:&nbsp;<span className="text-red-500">{handsLost}</span>
+              L: <span style={{ color: 'var(--tui-danger)' }}>{handsLost}</span>
             </div>
           </div>
         )}
 
         {endOfRound && (
           <div>
-            <p className={`${outcomeColor}`}>{lastResult?.reason}</p>
-            <p className={`mt-0 mb-4 ${outcomeColor}`}>
+            <p style={{ color: outcomeColor }}>{lastResult?.reason}</p>
+            <p className="mt-0 mb-4" style={{ color: outcomeColor }}>
               {lastResult?.playerScore ?? '—'} vs Dealer: {lastResult?.dealerScore ?? '—'}
             </p>
             <h2 className="mt-2">Round Over</h2>
             {handsWon > handsLost && (
-              <p className="text-green-500">You won this round!</p>
+              <p style={{ color: 'var(--tui-ok)' }}>You won this round!</p>
             )}
             {handsWon <= handsLost && (
-              <p className="text-red-500">You lost this round!</p>
+              <p style={{ color: 'var(--tui-danger)' }}>You lost this round!</p>
             )}
             <div className="mb-2">
-              Rounds Won: <p className="inline text-green-500">{roundsWon}</p> | Rounds
-              Lost:&nbsp;
-              <p className="inline text-red-500">{roundsLost}</p>
+              Rounds Won: <p className="inline" style={{ color: 'var(--tui-ok)' }}>{roundsWon}</p> |
+              Rounds Lost:{' '}
+              <p className="inline" style={{ color: 'var(--tui-danger)' }}>{roundsLost}</p>
             </div>
           </div>
         )}

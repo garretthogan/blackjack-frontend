@@ -1,6 +1,6 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import BlackjackTable from './BlackjackTable';
+import { buttonClass } from './theme';
 
 export default function Blackjack() {
   const navigate = useNavigate();
@@ -8,7 +8,7 @@ export default function Blackjack() {
   return (
     <div style={containerStyle}>
       <BlackjackTable />
-      <button style={backButtonStyle} onClick={() => navigate('/seat-buy-in')}>
+      <button className={buttonClass} style={{ marginTop: 16 }} onClick={() => navigate('/seat-buy-in')}>
         Reset Bank
       </button>
     </div>
@@ -20,27 +20,7 @@ const containerStyle = {
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  color: '#eee',
+  color: 'var(--tui-fg)',
   padding: 24,
-  fontFamily: 'sans-serif',
-};
-
-const evaluatingBoxStyle = {
-  marginTop: 8,
-  padding: 12,
-  border: '1px dashed ',
-  borderRadius: 10,
-  textAlign: 'center',
-  width: 'min(420px, 92vw)',
-  fontWeight: 700,
-  opacity: 0.9,
-};
-
-const backButtonStyle = {
-  marginTop: 16,
-  padding: '10px 20px',
-  borderRadius: 8,
-  border: '1px solid ',
-  color: '#eee',
-  cursor: 'pointer',
+  fontFamily: 'var(--tui-font)',
 };

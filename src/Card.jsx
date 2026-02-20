@@ -6,38 +6,46 @@ export default function Card({ card }) {
   const [showTooltip, setShowTooltip] = useState(false);
   const hasEffect = !!card.effect;
 
+  const suitColor = isRed ? 'var(--tui-danger)' : 'var(--tui-fg)';
+  const borderColor = hasEffect ? 'var(--tui-cyan)' : 'var(--tui-line-strong)';
+
   return (
     <div
-      className={`group relative aspect-[5/7] select-none rounded-2xl bg-white transition-transform duration-200 ease-out hover:-translate-y-1.5 ${
-        hasEffect
-          ? 'ring-2 ring-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.7)]'
-          : 'ring-1 ring-black/5 shadow-[0_6px_24px_rgba(0,0,0,0.35)]'
-      }`}
-      style={{ width: 'clamp(96px, 12vw, 128px)' }}
+      className="group relative aspect-[5/7] select-none transition-transform duration-200 ease-out hover:-translate-y-1.5"
+      style={{
+        width: 'clamp(96px, 12vw, 128px)',
+        border: `2px solid ${borderColor}`,
+        background: 'transparent',
+        boxShadow: hasEffect ? '0 0 12px var(--tui-cyan)' : 'none',
+      }}
       role="img"
       aria-label={`${card.rank} of ${suitName(card.suit)}`}
     >
-      <div className="absolute inset-0 rounded-2xl bg-[radial-gradient(120%_80%_at_50%_10%,_rgba(255,255,255,0.95),_rgba(235,235,235,0.9))]" />
-      <div className="absolute left-2 top-2 text-[min(20px,4.2vw)] leading-none">
-        <span className={`block font-bold ${isRed ? 'text-red-600' : 'text-stone-900'}`}>
+      <div
+        className="absolute left-2 top-2 leading-none font-mono"
+        style={{ fontSize: 'min(20px, 4.2vw)' }}
+      >
+        <span className="block font-bold" style={{ color: suitColor }}>
           {card.rank}
         </span>
-        <span className={`${isRed ? 'text-red-600' : 'text-stone-900'}`}>
-          {card.suit}
-        </span>
+        <span style={{ color: suitColor }}>{card.suit}</span>
       </div>
-      <div className="absolute bottom-2 right-2 rotate-180 text-[min(20px,4.2vw)] leading-none">
-        <span className={`block font-bold ${isRed ? 'text-red-600' : 'text-stone-900'}`}>
+      <div
+        className="absolute bottom-2 right-2 rotate-180 leading-none font-mono"
+        style={{ fontSize: 'min(20px, 4.2vw)' }}
+      >
+        <span className="block font-bold" style={{ color: suitColor }}>
           {card.rank}
         </span>
-        <span className={`${isRed ? 'text-red-600' : 'text-stone-900'}`}>
-          {card.suit}
-        </span>
+        <span style={{ color: suitColor }}>{card.suit}</span>
       </div>
       <div className="absolute inset-0 grid place-items-center">
         <span
-          className={`${isRed ? 'text-red-500' : 'text-stone-700'} opacity-80`}
-          style={{ fontSize: 'min(64px, 12vw)' }}
+          style={{
+            fontSize: 'min(64px, 12vw)',
+            color: suitColor,
+            opacity: 0.6,
+          }}
         >
           {card.suit}
         </span>
@@ -49,11 +57,25 @@ export default function Card({ card }) {
           onMouseEnter={() => setShowTooltip(true)}
           onMouseLeave={() => setShowTooltip(false)}
         >
-          <span className="px-1.5 py-0.5 text-[10px] font-bold bg-yellow-400 text-black rounded">
-            Effect
+          <span
+            className="px-1.5 py-0.5 text-[10px] font-bold"
+            style={{
+              border: '1px solid var(--tui-cyan)',
+              color: 'var(--tui-cyan)',
+              background: 'transparent',
+            }}
+          >
+            FX
           </span>
           {showTooltip && (
-            <div className="absolute top-6 right-0 w-40 p-2 text-xs text-black bg-white border border-yellow-400 rounded shadow-lg z-20">
+            <div
+              className="absolute top-6 right-0 w-40 p-2 text-xs z-20"
+              style={{
+                border: '1px solid var(--tui-cyan)',
+                background: 'var(--tui-bg)',
+                color: 'var(--tui-fg)',
+              }}
+            >
               {card.effect}
             </div>
           )}

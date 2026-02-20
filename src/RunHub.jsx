@@ -1,33 +1,41 @@
 import { useNavigate } from 'react-router';
 import useScoreboardStore from './stores/scoreboard';
+import { containerClass, modalClass, buttonClass } from './theme';
 
 export default function RunHub() {
   const navigate = useNavigate();
   const { roundsPlayed } = useScoreboardStore();
 
   return (
-    <div style={pageContainerStyle}>
-      <div style={cardStyle}>
-        <h1 style={headingStyle}>Run Hub</h1>
-        <p className={subheadingClass}>
-          Current Blind Goal: <span className="text-amber-500">600</span> winnings in 3
-          hands
+    <div className={containerClass}>
+      <div className={modalClass} style={{ minWidth: 'min(560px, 92vw)' }}>
+        <h1 style={{ margin: 0, marginBottom: 'var(--tui-gap)', fontSize: 28, color: 'var(--tui-fg)' }}>
+          Run Hub
+        </h1>
+        <p style={{ margin: 0, marginBottom: 'var(--tui-gap)', color: 'var(--tui-muted)' }}>
+          Current Blind Goal: <span style={{ color: 'var(--tui-cyan)' }}>600</span> winnings in 3 hands
         </p>
-        <p className={subheadingClass}>
-          Round: <span>{roundsPlayed + 1}</span>/8
+        <p style={{ margin: 0, marginBottom: 'var(--tui-gap-lg)', color: 'var(--tui-muted)' }}>
+          Round: <span style={{ color: 'var(--tui-fg)' }}>{roundsPlayed + 1}</span>/8
         </p>
 
-        <div style={primaryActionsGridStyle}>
-          <ActionButton label="Play Hand" onClick={() => navigate('/blackjack')} />
-          <ActionButton label="Shop" onClick={() => navigate('/shop')} />
-          <ActionButton label="View Deck" onClick={() => navigate('/deck-viewer')} />
+        <div style={{ display: 'grid', gap: 'var(--tui-gap-lg)', marginBottom: 'var(--tui-gap-lg)' }}>
+          <button className={buttonClass} onClick={() => navigate('/blackjack')}>
+            Play Hand
+          </button>
+          <button className={buttonClass} onClick={() => navigate('/shop')}>
+            Shop
+          </button>
+          <button className={buttonClass} onClick={() => navigate('/deck-viewer')}>
+            View Deck
+          </button>
         </div>
 
-        <div style={footerGridStyle}>
-          <button style={secondaryButtonStyle} onClick={() => navigate('/')}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--tui-gap-lg)' }}>
+          <button className={buttonClass} onClick={() => navigate('/')}>
             Back to Menu
           </button>
-          <button style={secondaryButtonStyle} onClick={() => navigate('/seat-buy-in')}>
+          <button className={buttonClass} onClick={() => navigate('/seat-buy-in')}>
             Change Starting Bank
           </button>
         </div>
@@ -35,68 +43,3 @@ export default function RunHub() {
     </div>
   );
 }
-
-function ActionButton({ label, onClick }) {
-  return (
-    <button style={primaryButtonStyle} onClick={onClick}>
-      {label}
-    </button>
-  );
-}
-
-const pageContainerStyle = {
-  minHeight: '100vh',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  padding: 24,
-  color: '#eee',
-  fontFamily: 'sans-serif',
-};
-
-const cardStyle = {
-  width: 'min(560px, 92vw)',
-  border: '1px solid',
-  borderRadius: 16,
-  padding: 24,
-};
-
-const headingStyle = { margin: 0, marginBottom: 8, fontSize: 28 };
-
-const subheadingClass = 'm-0 mb-4';
-const subheadingStyle = { margin: 0, marginBottom: 20, fontSize: 16, opacity: 0.85 };
-
-const primaryActionsGridStyle = {
-  display: 'grid',
-  gridTemplateColumns: '1fr',
-  gap: 14,
-  width: '100%',
-  marginBottom: 18,
-};
-
-const primaryButtonStyle = {
-  width: '100%',
-  padding: '14px 20px',
-  borderRadius: 10,
-  border: '1px solid',
-  color: '#eee',
-  fontSize: 16,
-  cursor: 'pointer',
-};
-
-const footerGridStyle = {
-  display: 'grid',
-  gridTemplateColumns: '1fr 1fr',
-  gap: 14,
-  width: '100%',
-};
-
-const secondaryButtonStyle = {
-  width: '100%',
-  padding: '12px 20px',
-  borderRadius: 10,
-  border: '1px solid',
-  color: '#eee',
-  fontSize: 16,
-  cursor: 'pointer',
-};

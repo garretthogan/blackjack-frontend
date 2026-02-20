@@ -3,24 +3,12 @@ import { useNavigate } from 'react-router';
 import { motion } from 'motion/react';
 import useDeckStore from './stores/deck';
 import Card from './Card';
+import { containerClass, buttonClass } from './theme';
 
-/** Minimal mock catalog pools */
 const POOLS = {
   Packs: [
-    {
-      id: 'pack_standard',
-      name: 'Card Pack',
-      desc: 'Open 4 cards, choose 1',
-      cost: 150,
-      packSize: 4,
-    },
-    {
-      id: 'pack_large',
-      name: 'Large Pack',
-      desc: 'Open 6 cards, choose 1',
-      cost: 250,
-      packSize: 6,
-    },
+    { id: 'pack_standard', name: 'Card Pack', desc: 'Open 4 cards, choose 1', cost: 150, packSize: 4 },
+    { id: 'pack_large', name: 'Large Pack', desc: 'Open 6 cards, choose 1', cost: 250, packSize: 6 },
   ],
   Hexes: [
     { id: 'jk_counter', name: 'Card Counter', desc: '+1x per card drawn', cost: 150 },
@@ -32,12 +20,7 @@ const POOLS = {
     { id: 'r_doub', name: 'Double Down Token', desc: 'First Double is free', cost: 180 },
     { id: 'r_safe', name: 'Safe Hit', desc: 'First 22 splits into two aces.', cost: 240 },
     { id: 'r_pair', name: 'Pair Engine', desc: '+x on pairs', cost: 210 },
-    {
-      id: 'co_reroll+',
-      name: 'Reroll Voucher',
-      desc: 'Reroll -25% cost (1x)',
-      cost: 100,
-    },
+    { id: 'co_reroll+', name: 'Reroll Voucher', desc: 'Reroll -25% cost (1x)', cost: 100 },
     { id: 'co_focus', name: 'Focused Draw', desc: 'Next draw +2 value', cost: 80 },
     { id: 'co_guard', name: 'Bust Guard', desc: 'Prevent next bust', cost: 120 },
   ],
@@ -70,14 +53,13 @@ export default function Shop() {
   const [tab, setTab] = useState('Packs');
   const [credits, setCredits] = useState(1200);
   const [rerollCost, setRerollCost] = useState(50);
-  const [discount, setDiscount] = useState(0); // % discount from voucher
+  const [discount, setDiscount] = useState(0);
   const [items, setItems] = useState(() => rollShop(tab));
-  const [owned, setOwned] = useState({}); // id -> true
+  const [owned, setOwned] = useState({});
   const [openedPack, setOpenedPack] = useState(null);
   const [selectedCard, setSelectedCard] = useState(null);
 
   function rollShop(whichTab) {
-    // Simple random selection of up to 6 items from the pool (no dupes)
     const pool = POOLS[whichTab] || [];
     const shuffled = [...pool].sort(() => Math.random() - 0.5);
     return shuffled.slice(0, Math.min(6, shuffled.length));
@@ -98,19 +80,13 @@ export default function Shop() {
 
     if (tab === 'Packs' && item.id.startsWith('pack_')) {
       const count = item.packSize || 4;
-      setOpenedPack({
-        cards: Array.from({ length: count }, () => createRandomCard()),
-      });
+      setOpenedPack({ cards: Array.from({ length: count }, () => createRandomCard()) });
       setSelectedCard(null);
       return;
     }
 
     setOwned(o => ({ ...o, [item.id]: true }));
-
-    // Simple example effect: voucher applies a discount once.
-    if (item.id === 'co_reroll+') {
-      setDiscount(0.25); // 25% off
-    }
+    if (item.id === 'co_reroll+') setDiscount(0.25);
   };
 
   const reroll = () => {
@@ -118,7 +94,7 @@ export default function Shop() {
     if (credits < cost) return;
     setCredits(c => c - cost);
     setItems(rollShop(tab));
-    setRerollCost(r => Math.round(r * 1.6)); // escalate cost
+    setRerollCost(r => Math.round(r * 1.6));
   };
 
   const confirmSelection = () => {
@@ -129,23 +105,26 @@ export default function Shop() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center gap-4 p-6 text-stone-200 font-sans">
-      <h1 className="text-3xl mt-2">Shop</h1>
+    <div className={containerClass} style={{ gap: 'var(--tui-gap-lg)' }}>
+      <h1 style={{ fontSize: 28, marginTop: 8, color: 'var(--tui-fg)' }}>Shop</h1>
 
-      <div className="flex gap-4 items-center justify-center">
-        <div className="px-3 py-1 border rounded-md font-bold">Winnings: {credits}</div>
-        <div className="px-3 py-1 border rounded-md opacity-90">
+      <div style={{ display: 'flex', gap: 'var(--tui-gap-lg)', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={pillStyle}>
+          Winnings: <span style={{ color: 'var(--tui-cyan)' }}>{credits}</span>
+        </div>
+        <div style={pillStyle}>
           {discount > 0 ? `Discount: -${Math.round(discount * 100)}%` : 'No Discount'}
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-3 w-full max-w-2xl">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--tui-gap)', maxWidth: 672, width: '100%' }}>
         {['Packs', 'Hexes', 'Relics'].map(t => (
           <button
             key={t}
             role="tab"
             aria-selected={tab === t}
-            className={`px-4 py-2 rounded-md border ${tab === t ? 'outline outline-2' : ''}`}
+            className={buttonClass}
+            style={{ borderColor: tab === t ? 'var(--tui-pink)' : undefined }}
             onClick={() => handleTab(t)}
           >
             {t}
@@ -154,12 +133,24 @@ export default function Shop() {
       </div>
 
       {openedPack ? (
-        <div className="mt-8 p-6 border rounded-lg text-center w-full max-w-4xl flex flex-col items-center">
-          <h2 className="text-xl mb-6">
+        <div
+          style={{
+            marginTop: 32,
+            padding: 24,
+            border: '2px solid var(--tui-line-strong)',
+            textAlign: 'center',
+            maxWidth: 896,
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <h2 style={{ fontSize: 20, marginBottom: 24, color: 'var(--tui-fg)' }}>
             {selectedCard ? 'Selected (confirm to add)' : 'Choose a card'}
           </h2>
 
-          <div className="flex flex-wrap justify-center gap-10 w-full mb-8">
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 40, marginBottom: 32 }}>
             {openedPack.cards.map((c, index) => {
               const isSelected = selectedCard && c === selectedCard;
               return (
@@ -172,39 +163,35 @@ export default function Shop() {
                     scale: isSelected ? 1.06 : 1,
                     filter: isSelected ? 'none' : 'brightness(0.95)',
                   }}
-                  transition={{
-                    delay: index * 0.12,
-                    type: 'spring',
-                    stiffness: 220,
-                    damping: 20,
-                  }}
-                  className={`flex flex-col items-center gap-3 ${isSelected ? 'z-10' : ''}`}
+                  transition={{ delay: index * 0.12, type: 'spring', stiffness: 220, damping: 20 }}
+                  style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, zIndex: isSelected ? 10 : 1 }}
                 >
-                  <button onClick={() => setSelectedCard(c)} className="cursor-pointer">
+                  <button onClick={() => setSelectedCard(c)} style={{ cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}>
                     <Card card={c} />
                   </button>
                   {isSelected && (
-                    <div className="text-sm font-semibold mt-1">Selected</div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--tui-pink)' }}>Selected</div>
                   )}
                 </motion.div>
               );
             })}
           </div>
 
-          <div className="mt-4 flex gap-3">
+          <div style={{ display: 'flex', gap: 'var(--tui-gap)' }}>
             <button
-              className={`px-4 py-2 rounded-md border ${selectedCard ? '' : 'opacity-50 cursor-not-allowed'}`}
+              className={buttonClass}
               onClick={confirmSelection}
               disabled={!selectedCard}
+              style={{ opacity: selectedCard ? 1 : 0.5, cursor: selectedCard ? 'pointer' : 'not-allowed' }}
             >
               Confirm
             </button>
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full max-w-5xl mt-4">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--tui-gap-lg)', maxWidth: 1200, width: '100%', marginTop: 16 }}>
           {items.length === 0 ? (
-            <div className="opacity-80 p-4">No items available.</div>
+            <div style={{ color: 'var(--tui-muted)', padding: 16 }}>No items available.</div>
           ) : (
             items.map(it => (
               <ItemCard
@@ -221,18 +208,16 @@ export default function Shop() {
       )}
 
       {!openedPack && (
-        <div className="flex gap-4 mt-6">
+        <div style={{ display: 'flex', gap: 'var(--tui-gap-lg)', marginTop: 24 }}>
           <button
-            className="px-4 py-2 rounded-md border"
+            className={buttonClass}
             onClick={reroll}
             disabled={credits < effectiveCost(rerollCost)}
+            style={{ opacity: credits >= effectiveCost(rerollCost) ? 1 : 0.5 }}
           >
             Reroll ({effectiveCost(rerollCost)})
           </button>
-          <button
-            className="px-4 py-2 rounded-md border"
-            onClick={() => navigate('/run-hub')}
-          >
+          <button className={buttonClass} onClick={() => navigate('/run-hub')}>
             Back to Hub
           </button>
         </div>
@@ -243,19 +228,33 @@ export default function Shop() {
 
 function ItemCard({ item, owned, effectiveCost, canBuy, onBuy }) {
   return (
-    <div className="border rounded-lg p-4 flex flex-col gap-3">
-      <div className="flex justify-between items-baseline">
-        <h3 className="text-lg">{item.name}</h3>
-        <span className="font-bold opacity-90">{owned ? 'Owned' : effectiveCost}</span>
+    <div style={{ border: '1px solid var(--tui-line)', padding: 'var(--tui-pad-3)', display: 'flex', flexDirection: 'column', gap: 'var(--tui-gap)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+        <h3 style={{ margin: 0, fontSize: 18, color: 'var(--tui-fg)' }}>{item.name}</h3>
+        <span style={{ fontWeight: 700, color: owned ? 'var(--tui-ok)' : 'var(--tui-cyan)' }}>
+          {owned ? 'Owned' : effectiveCost}
+        </span>
       </div>
-      <p className="text-sm opacity-80">{item.desc}</p>
+      <p style={{ margin: 0, fontSize: 14, color: 'var(--tui-muted)' }}>{item.desc}</p>
       <button
-        className={`self-start px-3 py-2 rounded-md border ${canBuy ? '' : 'opacity-50 cursor-not-allowed'}`}
+        className={buttonClass}
         onClick={onBuy}
         disabled={!canBuy || owned}
+        style={{
+          alignSelf: 'flex-start',
+          opacity: canBuy && !owned ? 1 : 0.5,
+          cursor: canBuy && !owned ? 'pointer' : 'not-allowed',
+        }}
       >
         {owned ? 'Purchased' : 'Buy'}
       </button>
     </div>
   );
 }
+
+const pillStyle = {
+  padding: 'var(--tui-pad-1) var(--tui-pad-2)',
+  border: '1px solid var(--tui-line)',
+  fontWeight: 700,
+  color: 'var(--tui-fg)',
+};

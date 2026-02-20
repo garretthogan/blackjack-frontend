@@ -5,17 +5,16 @@ import usePlayerStore from './stores/player';
 import useDeckStore from './stores/deck';
 import RoundResultModal from './RoundResultModal';
 import useScoreboardStore from './stores/scoreboard';
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
+import { overlayClass, modalClass, buttonClass } from './theme';
 
-const titleStyle = { margin: '16px 0 8px', fontSize: 28 };
 const handAreaStyle = {
   display: 'flex',
   flexWrap: 'wrap',
-  gap: 12,
+  gap: 'var(--tui-gap-lg)',
   minHeight: 160,
-  padding: 12,
-  border: '1px dashed',
-  borderRadius: 12,
+  padding: 'var(--tui-pad-3)',
+  border: '1px dashed var(--tui-line)',
   marginBottom: 16,
   width: 'min(740px, 95vw)',
   justifyContent: 'center',
@@ -23,40 +22,36 @@ const handAreaStyle = {
 
 const topBarStyle = {
   display: 'flex',
-  gap: 12,
+  gap: 'var(--tui-gap-lg)',
   alignItems: 'center',
   justifyContent: 'center',
   marginBottom: 12,
 };
 
 const modifierStyle = {
-  padding: '8px 12px',
-  border: '1px solid ',
-  borderRadius: 8,
-  opacity: 0.9,
+  padding: 'var(--tui-pad-1) var(--tui-pad-2)',
+  border: '1px solid var(--tui-line)',
+  color: 'var(--tui-muted)',
 };
 
 const totalStyle = {
-  padding: '8px 12px',
-  border: '1px solid ',
-  borderRadius: 8,
+  padding: 'var(--tui-pad-1) var(--tui-pad-2)',
+  border: '2px solid var(--tui-line-strong)',
   fontWeight: 700,
+  color: 'var(--tui-cyan)',
 };
 
 const controlsStyle = {
   display: 'grid',
   gridTemplateColumns: 'repeat(4, minmax(100px, 1fr))',
-  gap: 12,
+  gap: 'var(--tui-gap-lg)',
   marginBottom: 16,
 };
 
-const btnStyle = {
-  padding: '12px 16px',
-  borderRadius: 10,
-  border: '1px solid ',
-  color: '#eee',
-  fontSize: 16,
-  cursor: 'pointer',
+const labelStyle = {
+  color: 'var(--tui-muted)',
+  fontSize: 'var(--tui-font-size-sm)',
+  marginBottom: 'var(--tui-gap-sm)',
 };
 
 export default function BlackjackTable({}) {
@@ -127,18 +122,18 @@ export default function BlackjackTable({}) {
         onClose={startPlacingBet}
       />
       {isDealerThinking && (
-        <div style={overlayStyle}>
-          <div style={modalStyle}>Evaluating...</div>
+        <div className={overlayClass}>
+          <div className={modalClass}>Evaluating...</div>
         </div>
       )}
-      Dealer
+      <div style={labelStyle}>Dealer</div>
       <div style={handAreaStyle} aria-label="Dealer hand">
         <Hand cards={dealerHand} isDealer={true} />
       </div>
       <div style={handAreaStyle} aria-label="Player hand">
         <Hand cards={playerHand} />
       </div>
-      Player
+      <div style={labelStyle}>Player</div>
       {!isDealerThinking && (
         <div>
           <BetModal open={placingBets} onConfirmed={dealCards} />
@@ -151,8 +146,7 @@ export default function BlackjackTable({}) {
           </div>
           <div style={controlsStyle}>
             <button
-              className="disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
-              style={btnStyle}
+              className={`${buttonClass} disabled:opacity-50 disabled:cursor-not-allowed`}
               onClick={() => {
                 addPlayerCards([drawCard()]);
                 startThinking();
@@ -164,8 +158,7 @@ export default function BlackjackTable({}) {
               Hit
             </button>
             <button
-              className="disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
-              style={btnStyle}
+              className={`${buttonClass} disabled:opacity-50 disabled:cursor-not-allowed`}
               onClick={() => {
                 playerStands();
                 startThinking();
@@ -175,8 +168,7 @@ export default function BlackjackTable({}) {
               Stand
             </button>
             <button
-              className="disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
-              style={btnStyle}
+              className={`${buttonClass} disabled:opacity-50 disabled:cursor-not-allowed`}
               disabled={!playerHand.length === 2}
               onClick={() => {
                 setPlayerBet(playerBet * 2);
@@ -188,8 +180,8 @@ export default function BlackjackTable({}) {
               Double
             </button>
             <button
-              className="disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
-              style={{ ...btnStyle, opacity: 0.5 }}
+              className={`${buttonClass} disabled:opacity-50 disabled:cursor-not-allowed`}
+              style={{ opacity: 0.5 }}
               disabled={true}
             >
               Split
@@ -200,24 +192,3 @@ export default function BlackjackTable({}) {
     </div>
   );
 }
-
-const overlayStyle = {
-  position: 'fixed',
-  inset: 0,
-  background: 'rgba(0,0,0,0.6)',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  zIndex: 1000,
-};
-
-const modalStyle = {
-  background: '#23272f',
-  color: '#e5e7eb',
-  border: '1px solid rgba(255,255,255,0.15)',
-  borderRadius: 14,
-  padding: 18,
-  width: 420,
-  maxWidth: '92vw',
-  boxShadow: '0 20px 50px rgba(0,0,0,0.45)',
-};

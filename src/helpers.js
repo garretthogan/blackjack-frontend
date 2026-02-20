@@ -159,6 +159,6 @@ export function settlementReturn(bet, outcome, { multiplier = 1 } = {}) {
 }
 
 export const btnCls =
-  'rounded-xl bg-stone-200 px-3 py-2 text-sm font-semibold text-stone-900 shadow-sm transition active:translate-y-px hover:bg-white';
+  'px-3 py-2 text-sm font-semibold border-2 border-[var(--tui-line-strong)] bg-transparent text-[var(--tui-fg)] transition-colors hover:border-[var(--tui-cyan)] active:border-[var(--tui-pink)]';
 export const btnAccent =
-  'rounded-xl bg-emerald-400 px-3 py-2 text-sm font-semibold text-emerald-950 shadow-sm transition active:translate-y-px hover:bg-emerald-300';
+  'px-3 py-2 text-sm font-semibold border-2 border-[var(--tui-pink)] bg-transparent text-[var(--tui-fg)] transition-colors hover:border-[var(--tui-cyan)] active:border-[var(--tui-pink)]';
