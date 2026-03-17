@@ -24,6 +24,7 @@ const handAreaStyle = {
 
 const topBarStyle = {
   display: 'flex',
+  flexWrap: 'wrap',
   gap: 'var(--tui-gap-lg)',
   alignItems: 'center',
   justifyContent: 'center',
@@ -45,16 +46,21 @@ const totalStyle = {
 
 const controlsStyle = {
   display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-  gap: 'var(--tui-gap-lg)',
+  gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+  gap: 'var(--tui-gap)',
   marginBottom: 16,
-  width: 'min(740px, 95vw)',
+  width: '100%',
+  maxWidth: 740,
 };
 
 const labelStyle = {
   color: 'var(--tui-muted)',
   fontSize: 'var(--tui-font-size-sm)',
   marginBottom: 'var(--tui-gap-sm)',
+  width: '100%',
+  maxWidth: 740,
+  boxSizing: 'border-box',
+  paddingInline: 4,
 };
 
 const TARGET_DEALER_BLACKJACK_ODDS = 1 / 50;
@@ -261,6 +267,7 @@ export default function BlackjackTable({}) {
                 else console.log('dealer stays');
               }}
               disabled={playerStood || !playerBet}
+              style={{ width: '100%' }}
             >
               Hit
             </button>
@@ -271,6 +278,7 @@ export default function BlackjackTable({}) {
                 startThinking();
               }}
               disabled={playerStood || !playerBet}
+              style={{ width: '100%' }}
             >
               Stand
             </button>
@@ -284,6 +292,7 @@ export default function BlackjackTable({}) {
                 playerStands();
                 startThinking();
               }}
+              style={{ width: '100%' }}
             >
               Double
             </button>
@@ -345,4 +354,6 @@ const devToggleStyle = {
 const tableStyle = {
   width: '100%',
   maxWidth: 760,
+  boxSizing: 'border-box',
+  paddingInline: 4,
 };
