@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { suitName } from './helpers';
 
-export default function Card({ card }) {
+export default function Card({ card, showShopOutline = false }) {
   const isRed = card.suit === '♥' || card.suit === '♦';
   const [showTooltip, setShowTooltip] = useState(false);
   const hasEffect = !!card.effect;
+  const isFromShop = !!card.fromShop;
+  const shouldOutlineShopCard = showShopOutline && isFromShop;
 
   const suitColor = isRed ? 'var(--tui-danger)' : 'var(--tui-fg)';
   const borderColor = hasEffect ? 'var(--tui-cyan)' : 'var(--tui-line-strong)';
@@ -13,10 +15,12 @@ export default function Card({ card }) {
     <div
       className="group relative aspect-[5/7] select-none transition-transform duration-200 ease-out hover:-translate-y-1.5"
       style={{
-        width: 'clamp(96px, 12vw, 128px)',
+        width: 'clamp(72px, 20vw, 128px)',
         border: `2px solid ${borderColor}`,
         background: 'transparent',
         boxShadow: hasEffect ? '0 0 12px var(--tui-cyan)' : 'none',
+        outline: shouldOutlineShopCard ? '3px solid var(--tui-pink)' : 'none',
+        outlineOffset: shouldOutlineShopCard ? 1 : 0,
       }}
       role="img"
       aria-label={`${card.rank} of ${suitName(card.suit)}`}
@@ -57,16 +61,22 @@ export default function Card({ card }) {
           onMouseEnter={() => setShowTooltip(true)}
           onMouseLeave={() => setShowTooltip(false)}
         >
-          <span
+          <button
+            type="button"
             className="px-1.5 py-0.5 text-[10px] font-bold"
             style={{
               border: '1px solid var(--tui-cyan)',
               color: 'var(--tui-cyan)',
               background: 'transparent',
+              cursor: 'pointer',
+            }}
+            onClick={e => {
+              e.stopPropagation();
+              setShowTooltip(prev => !prev);
             }}
           >
             FX
-          </span>
+          </button>
           {showTooltip && (
             <div
               className="absolute top-6 right-0 w-40 p-2 text-xs z-20"
@@ -74,6 +84,11 @@ export default function Card({ card }) {
                 border: '1px solid var(--tui-cyan)',
                 background: 'var(--tui-bg)',
                 color: 'var(--tui-fg)',
+                cursor: 'pointer',
+              }}
+              onClick={e => {
+                e.stopPropagation();
+                setShowTooltip(false);
               }}
             >
               {card.effect}

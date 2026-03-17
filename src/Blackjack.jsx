@@ -21,6 +21,8 @@ const containerStyle = {
   flexDirection: 'column',
   alignItems: 'center',
   color: 'var(--tui-fg)',
-  padding: 24,
+  padding: '16px 10px 88px',
   fontFamily: 'var(--tui-font)',
+  width: '100%',
+  boxSizing: 'border-box',
 };

@@ -5,7 +5,7 @@ import usePlayerStore from './stores/player';
 import useDeckStore from './stores/deck';
 import RoundResultModal from './RoundResultModal';
 import useScoreboardStore from './stores/scoreboard';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { overlayClass, modalClass, buttonClass } from './theme';
 
 const handAreaStyle = {
@@ -16,8 +16,10 @@ const handAreaStyle = {
   padding: 'var(--tui-pad-3)',
   border: '1px dashed var(--tui-line)',
   marginBottom: 16,
-  width: 'min(740px, 95vw)',
+  width: '100%',
+  maxWidth: 740,
   justifyContent: 'center',
+  boxSizing: 'border-box',
 };
 
 const topBarStyle = {
@@ -43,9 +45,10 @@ const totalStyle = {
 
 const controlsStyle = {
   display: 'grid',
-  gridTemplateColumns: 'repeat(4, minmax(100px, 1fr))',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
   gap: 'var(--tui-gap-lg)',
   marginBottom: 16,
+  width: 'min(740px, 95vw)',
 };
 
 const labelStyle = {
@@ -54,7 +57,80 @@ const labelStyle = {
   marginBottom: 'var(--tui-gap-sm)',
 };
 
+const TARGET_DEALER_BLACKJACK_ODDS = 1 / 50;
+const TARGET_PLAYER_BLACKJACK_ODDS = 1 / 15;
+const STANDARD_SINGLE_DECK_DEALER_BLACKJACK_ODDS = 128 / 2652;
+
+function resolveHitCardEffect(card, playerHand) {
+  if (!card || card.effectId !== 'copy_adjacent_on_hit') return card;
+  if (playerHand.length === 0) return card;
+
+  const adjacentCard = playerHand[playerHand.length - 1];
+  if (!adjacentCard) return card;
+
+  return {
+    ...card,
+    rank: adjacentCard.rank,
+    suit: adjacentCard.suit,
+  };
+}
+
+function isNaturalBlackjack(cards) {
+  if (!cards || cards.length !== 2) return false;
+  const [a, b] = cards;
+  if (!a || !b) return false;
+  const isAce = c => c.rank === 'A';
+  const isTenValue = c => ['10', 'J', 'Q', 'K'].includes(c.rank);
+  return (isAce(a) && isTenValue(b)) || (isAce(b) && isTenValue(a));
+}
+
+function tuneDealerOpeningBlackjackOdds(initialCards, drawOne) {
+  if (!isNaturalBlackjack(initialCards)) return initialCards;
+
+  const keepChance = Math.min(
+    1,
+    TARGET_DEALER_BLACKJACK_ODDS / STANDARD_SINGLE_DECK_DEALER_BLACKJACK_ODDS
+  );
+  if (Math.random() < keepChance) return initialCards;
+
+  const [firstCard] = initialCards;
+  let replacement = drawOne();
+  while (replacement && isNaturalBlackjack([firstCard, replacement])) {
+    replacement = drawOne();
+  }
+
+  if (!replacement) return initialCards;
+  return [firstCard, replacement];
+}
+
+function tunePlayerOpeningBlackjackOdds(initialCards, drawCards) {
+  if (isNaturalBlackjack(initialCards)) return initialCards;
+
+  if (TARGET_PLAYER_BLACKJACK_ODDS <= STANDARD_SINGLE_DECK_DEALER_BLACKJACK_ODDS) {
+    return initialCards;
+  }
+
+  const boostChance =
+    (TARGET_PLAYER_BLACKJACK_ODDS - STANDARD_SINGLE_DECK_DEALER_BLACKJACK_ODDS) /
+    (1 - STANDARD_SINGLE_DECK_DEALER_BLACKJACK_ODDS);
+
+  if (Math.random() >= boostChance) return initialCards;
+
+  const maxAttempts = 20;
+  for (let i = 0; i < maxAttempts; i++) {
+    const candidate = drawCards(2);
+    if (candidate.length < 2) return initialCards;
+    if (isNaturalBlackjack(candidate)) return candidate;
+  }
+
+  return initialCards;
+}
+
 export default function BlackjackTable({}) {
+  const [showShopCardOutline, setShowShopCardOutline] = useState(false);
+  const [onlyShopCardsInDeck, setOnlyShopCardsInDeck] = useState(false);
+  const [showRoundResultModal, setShowRoundResultModal] = useState(false);
+  const isDev = import.meta.env.DEV;
   const { addResult, lastResult, resetScoreboard } = useScoreboardStore();
   const {
     dealerHand,
@@ -64,7 +140,7 @@ export default function BlackjackTable({}) {
     isDealerThinking,
     startThinking,
   } = useDealerStore();
-  const { deck, resetDeck, drawCard } = useDeckStore();
+  const { deck, resetDeck, drawCard, setDevOnlyShopCards } = useDeckStore();
 
   const {
     addPlayerCards,
@@ -80,14 +156,32 @@ export default function BlackjackTable({}) {
     resetPlayerHand,
   } = usePlayerStore();
 
+  useEffect(() => {
+    setDevOnlyShopCards(isDev && onlyShopCardsInDeck);
+  }, [isDev, onlyShopCardsInDeck, setDevOnlyShopCards]);
+
+  const drawCards = count => {
+    const drawn = [];
+    for (let i = 0; i < count; i++) {
+      const card = drawCard();
+      if (card) drawn.push(card);
+    }
+    return drawn;
+  };
+
+  const drawOne = () => drawCards(1)[0] || null;
+
   const loadShoe = () => {
     resetScoreboard();
     resetPlayerHand();
     resetDealerHand();
+    setShowRoundResultModal(false);
 
     resetDeck();
-    addPlayerCards([drawCard(), drawCard()]);
-    addDealerCards([drawCard(), drawCard()]);
+    const playerCards = tunePlayerOpeningBlackjackOdds(drawCards(2), drawCards);
+    const dealerCards = tuneDealerOpeningBlackjackOdds(drawCards(2), drawOne);
+    if (playerCards.length) addPlayerCards(playerCards);
+    if (dealerCards.length) addDealerCards(dealerCards);
   };
 
   const dealCards = () => {
@@ -98,28 +192,33 @@ export default function BlackjackTable({}) {
   useEffect(() => {
     if (playerStood && !lastResult) {
       if (playerValue < 21 && dealerValue <= 17) {
-        addDealerCards([drawCard()]);
+        const dealerDraw = drawOne();
+        if (dealerDraw) addDealerCards([dealerDraw]);
       }
     }
   }, [playerValue, dealerValue, playerStood, lastResult]);
 
-  if (!playerStood && playerValue > 21 && !lastResult) {
-    playerStands();
-  }
+  useEffect(() => {
+    if (playerStood && !isDealerThinking) {
+      setShowRoundResultModal(true);
+    }
+  }, [playerStood, isDealerThinking]);
 
-  if (!playerStood && playerValue === 21 && !lastResult) {
-    playerStands();
-  }
-
-  if (!playerStood && dealerValue === 21 && !lastResult) {
-    playerStands();
-  }
+  useEffect(() => {
+    if (playerStood || lastResult) return;
+    if (playerValue >= 21 || dealerValue === 21) {
+      playerStands();
+    }
+  }, [playerStood, playerValue, dealerValue, lastResult, playerStands]);
 
   return (
-    <div>
+    <div style={tableStyle}>
       <RoundResultModal
-        isOpen={playerStood && !isDealerThinking}
-        onClose={startPlacingBet}
+        isOpen={showRoundResultModal}
+        onClose={() => {
+          setShowRoundResultModal(false);
+          startPlacingBet();
+        }}
       />
       {isDealerThinking && (
         <div className={overlayClass}>
@@ -128,10 +227,14 @@ export default function BlackjackTable({}) {
       )}
       <div style={labelStyle}>Dealer</div>
       <div style={handAreaStyle} aria-label="Dealer hand">
-        <Hand cards={dealerHand} isDealer={true} />
+        <Hand
+          cards={dealerHand}
+          isDealer={true}
+          showShopCardOutline={isDev && showShopCardOutline}
+        />
       </div>
       <div style={handAreaStyle} aria-label="Player hand">
-        <Hand cards={playerHand} />
+        <Hand cards={playerHand} showShopCardOutline={isDev && showShopCardOutline} />
       </div>
       <div style={labelStyle}>Player</div>
       {!isDealerThinking && (
@@ -148,9 +251,13 @@ export default function BlackjackTable({}) {
             <button
               className={`${buttonClass} disabled:opacity-50 disabled:cursor-not-allowed`}
               onClick={() => {
-                addPlayerCards([drawCard()]);
+                const playerDraw = drawOne();
+                if (playerDraw) addPlayerCards([resolveHitCardEffect(playerDraw, playerHand)]);
                 startThinking();
-                if (dealerValue < 17 && playerValue < 21) addDealerCards([drawCard()]);
+                if (dealerValue < 17 && playerValue < 21) {
+                  const dealerDraw = drawOne();
+                  if (dealerDraw) addDealerCards([dealerDraw]);
+                }
                 else console.log('dealer stays');
               }}
               disabled={playerStood || !playerBet}
@@ -172,7 +279,8 @@ export default function BlackjackTable({}) {
               disabled={!playerHand.length === 2}
               onClick={() => {
                 setPlayerBet(playerBet * 2);
-                addPlayerCards([drawCard()]);
+                const playerDraw = drawOne();
+                if (playerDraw) addPlayerCards([playerDraw]);
                 playerStands();
                 startThinking();
               }}
@@ -189,6 +297,52 @@ export default function BlackjackTable({}) {
           </div>
         </div>
       )}
+      {isDev && (
+        <div style={devToggleContainerStyle}>
+          <label style={devToggleStyle}>
+            <input
+              type="checkbox"
+              checked={showShopCardOutline}
+              onChange={e => setShowShopCardOutline(e.target.checked)}
+            />
+            <span>Highlight shop cards on table</span>
+          </label>
+          <label style={devToggleStyle}>
+            <input
+              type="checkbox"
+              checked={onlyShopCardsInDeck}
+              onChange={e => setOnlyShopCardsInDeck(e.target.checked)}
+            />
+            <span>Only draw purchased cards</span>
+          </label>
+        </div>
+      )}
     </div>
   );
 }
+
+const devToggleContainerStyle = {
+  position: 'fixed',
+  left: '50%',
+  bottom: 16,
+  transform: 'translateX(-50%)',
+  zIndex: 60,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 'var(--tui-gap-sm)',
+};
+
+const devToggleStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 'var(--tui-gap-sm)',
+  padding: 'var(--tui-pad-1) var(--tui-pad-2)',
+  border: '1px solid var(--tui-line)',
+  background: 'var(--tui-bg)',
+  color: 'var(--tui-fg)',
+};
+
+const tableStyle = {
+  width: '100%',
+  maxWidth: 760,
+};

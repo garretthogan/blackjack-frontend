@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router';
+import { useEffect } from 'react';
 import useScoreboardStore, { HANDS_PER_FLOOR } from './stores/scoreboard';
 import { buttonClass, buttonRowClass, modalClass, overlayClass } from './theme';
 import usePlayerStore from './stores/player';
@@ -21,8 +22,6 @@ export default function RoundResultModal({ isOpen, onClose }) {
   const { dealerValue } = useDealerStore();
   const navigate = useNavigate();
 
-  if (!isOpen) return null;
-
   const stop = e => e.stopPropagation();
 
   const outcomeColorMap = {
@@ -34,7 +33,9 @@ export default function RoundResultModal({ isOpen, onClose }) {
   };
   const outcomeColor = (lastResult && outcomeColorMap[lastResult.outcome]) || 'var(--tui-fg)';
 
-  if (playerStood && !lastResult) {
+  useEffect(() => {
+    if (!isOpen || !playerStood || lastResult) return;
+
     if (playerValue <= 21 && dealerValue > 21) {
       addResult('Win', 'Dealer busted', playerValue, dealerValue);
     } else if (playerValue === 21) {
@@ -50,6 +51,18 @@ export default function RoundResultModal({ isOpen, onClose }) {
         addResult('Push', 'Push', playerValue, dealerValue);
       }
     }
+  }, [isOpen, playerStood, lastResult, playerValue, dealerValue, addResult]);
+
+  if (!isOpen) return null;
+
+  if (!lastResult) {
+    return (
+      <div className={overlayClass}>
+        <div className={modalClass} onClick={stop}>
+          <div className="py-2">Calculating result...</div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -57,7 +70,7 @@ export default function RoundResultModal({ isOpen, onClose }) {
       <div className={modalClass} onClick={stop}>
         <div className="py-2">
           <h1 className="text-4xl mb-2 p-2">
-            {lastResult.outcome === 'Win' && (
+            {lastResult?.outcome === 'Win' && (
               <span>
                 WINNINGS: $<span style={{ color: 'var(--tui-ok)' }}>{wager * 2}</span>
               </span>
@@ -116,7 +129,7 @@ export default function RoundResultModal({ isOpen, onClose }) {
             </button>
           )}
           <button className={buttonClass} onClick={() => onClose()}>
-            Next Hand
+            Place Next Bet
           </button>
         </div>
       </div>

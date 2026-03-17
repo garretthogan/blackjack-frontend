@@ -25,6 +25,8 @@ function shuffleDeck(deck) {
 
 const useDeckStore = create((set, get) => ({
   deck: [],
+  purchasedCards: [],
+  devOnlyShopCards: false,
   drawCard: () => {
     const { deck } = get();
     if (deck.length === 0) return null;
@@ -37,12 +39,23 @@ const useDeckStore = create((set, get) => ({
       deck: shuffleDeck(state.deck),
     })),
   resetDeck: () => {
-    set({ deck: shuffleDeck(generateDeck()) });
+    const { purchasedCards, devOnlyShopCards } = get();
+    const nextDeck = devOnlyShopCards ? [...purchasedCards] : [...generateDeck(), ...purchasedCards];
+    set({ deck: shuffleDeck(nextDeck) });
   },
-  addCardToDeck: card =>
+  setDevOnlyShopCards: enabled =>
     set(state => ({
-      deck: shuffleDeck([...state.deck, card]),
+      devOnlyShopCards: enabled,
+      deck: enabled ? state.deck.filter(card => card.fromShop) : state.deck,
     })),
+  addCardToDeck: card =>
+    set(state => {
+      const purchasedCard = { ...card, fromShop: true };
+      return {
+        purchasedCards: [...state.purchasedCards, purchasedCard],
+        deck: shuffleDeck([...state.deck, purchasedCard]),
+      };
+    }),
 }));
 
 export default useDeckStore;

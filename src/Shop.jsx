@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { motion } from 'motion/react';
 import useDeckStore from './stores/deck';
+import useScoreboardStore from './stores/scoreboard';
 import Card from './Card';
 import { containerClass, buttonClass } from './theme';
 
@@ -27,14 +28,10 @@ const POOLS = {
 };
 
 const EFFECTS = [
-  '+25 chips if this card makes 21',
-  '+10 chips per Ace in hand',
-  'x2 multiplier if part of a Blackjack',
-  '+15 chips if this card is a face card',
-  'Prevent bust once per round if this card is in hand',
-  '+20 chips if this card is drawn first',
-  'x1.5 multiplier if paired with same rank',
-  '+30 chips if this card wins against dealer',
+  {
+    id: 'copy_adjacent_on_hit',
+    text: 'If drawn from Hit, this card becomes the card next to it in your hand.',
+  },
 ];
 
 function createRandomCard() {
@@ -42,18 +39,33 @@ function createRandomCard() {
   const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
   const suit = suits[Math.floor(Math.random() * suits.length)];
   const rank = ranks[Math.floor(Math.random() * ranks.length)];
-  const effect = EFFECTS[Math.floor(Math.random() * EFFECTS.length)];
-  return { suit, rank, effect };
+  const shouldHaveEffect = Math.random() < 0.35;
+  if (!shouldHaveEffect) return { suit, rank };
+
+  const chosenEffect = EFFECTS[Math.floor(Math.random() * EFFECTS.length)];
+  return { suit, rank, effect: chosenEffect.text, effectId: chosenEffect.id };
+}
+
+function createRandomEffectCard() {
+  const suits = ['♠', '♥', '♦', '♣'];
+  const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+  const suit = suits[Math.floor(Math.random() * suits.length)];
+  const rank = ranks[Math.floor(Math.random() * ranks.length)];
+  const chosenEffect = EFFECTS[Math.floor(Math.random() * EFFECTS.length)];
+  return { suit, rank, effect: chosenEffect.text, effectId: chosenEffect.id };
 }
 
 export default function Shop() {
   const navigate = useNavigate();
   const addCardToDeck = useDeckStore(state => state.addCardToDeck);
+  const purse = useScoreboardStore(state => state.purse);
+  const withdrawFromPurse = useScoreboardStore(state => state.withdrawFromPurse);
+  const isDev = import.meta.env.DEV;
 
   const [tab, setTab] = useState('Packs');
-  const [credits, setCredits] = useState(1200);
   const [rerollCost, setRerollCost] = useState(50);
   const [discount, setDiscount] = useState(0);
+  const [devOnlyEffectPackCards, setDevOnlyEffectPackCards] = useState(false);
   const [items, setItems] = useState(() => rollShop(tab));
   const [owned, setOwned] = useState({});
   const [openedPack, setOpenedPack] = useState(null);
@@ -75,12 +87,16 @@ export default function Shop() {
   const buyItem = item => {
     if (owned[item.id]) return;
     const cost = effectiveCost(item.cost);
-    if (credits < cost) return;
-    setCredits(c => c - cost);
+    if (purse < cost) return;
+    withdrawFromPurse(cost);
 
     if (tab === 'Packs' && item.id.startsWith('pack_')) {
       const count = item.packSize || 4;
-      setOpenedPack({ cards: Array.from({ length: count }, () => createRandomCard()) });
+      setOpenedPack({
+        cards: Array.from({ length: count }, () =>
+          isDev && devOnlyEffectPackCards ? createRandomEffectCard() : createRandomCard()
+        ),
+      });
       setSelectedCard(null);
       return;
     }
@@ -91,8 +107,8 @@ export default function Shop() {
 
   const reroll = () => {
     const cost = effectiveCost(rerollCost);
-    if (credits < cost) return;
-    setCredits(c => c - cost);
+    if (purse < cost) return;
+    withdrawFromPurse(cost);
     setItems(rollShop(tab));
     setRerollCost(r => Math.round(r * 1.6));
   };
@@ -110,7 +126,7 @@ export default function Shop() {
 
       <div style={{ display: 'flex', gap: 'var(--tui-gap-lg)', alignItems: 'center', justifyContent: 'center' }}>
         <div style={pillStyle}>
-          Winnings: <span style={{ color: 'var(--tui-cyan)' }}>{credits}</span>
+          Bank: <span style={{ color: 'var(--tui-cyan)' }}>{purse}</span>
         </div>
         <div style={pillStyle}>
           {discount > 0 ? `Discount: -${Math.round(discount * 100)}%` : 'No Discount'}
@@ -166,12 +182,31 @@ export default function Shop() {
                   transition={{ delay: index * 0.12, type: 'spring', stiffness: 220, damping: 20 }}
                   style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, zIndex: isSelected ? 10 : 1 }}
                 >
-                  <button onClick={() => setSelectedCard(c)} style={{ cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}>
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setSelectedCard(c)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setSelectedCard(c);
+                      }
+                    }}
+                    style={{ cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}
+                  >
                     <Card card={c} />
-                  </button>
-                  {isSelected && (
-                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--tui-pink)' }}>Selected</div>
-                  )}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 14,
+                      fontWeight: 600,
+                      color: 'var(--tui-pink)',
+                      minHeight: 20,
+                      visibility: isSelected ? 'visible' : 'hidden',
+                    }}
+                  >
+                    Selected
+                  </div>
                 </motion.div>
               );
             })}
@@ -199,7 +234,7 @@ export default function Shop() {
                 item={it}
                 owned={!!owned[it.id]}
                 effectiveCost={effectiveCost(it.cost)}
-                canBuy={credits >= effectiveCost(it.cost) && !owned[it.id]}
+                canBuy={purse >= effectiveCost(it.cost) && !owned[it.id]}
                 onBuy={() => buyItem(it)}
               />
             ))
@@ -212,8 +247,8 @@ export default function Shop() {
           <button
             className={buttonClass}
             onClick={reroll}
-            disabled={credits < effectiveCost(rerollCost)}
-            style={{ opacity: credits >= effectiveCost(rerollCost) ? 1 : 0.5 }}
+            disabled={purse < effectiveCost(rerollCost)}
+            style={{ opacity: purse >= effectiveCost(rerollCost) ? 1 : 0.5 }}
           >
             Reroll ({effectiveCost(rerollCost)})
           </button>
@@ -221,6 +256,16 @@ export default function Shop() {
             Back to Hub
           </button>
         </div>
+      )}
+      {isDev && (
+        <label style={devToggleStyle}>
+          <input
+            type="checkbox"
+            checked={devOnlyEffectPackCards}
+            onChange={e => setDevOnlyEffectPackCards(e.target.checked)}
+          />
+          <span>Packs contain only effect cards</span>
+        </label>
       )}
     </div>
   );
@@ -256,5 +301,20 @@ const pillStyle = {
   padding: 'var(--tui-pad-1) var(--tui-pad-2)',
   border: '1px solid var(--tui-line)',
   fontWeight: 700,
+  color: 'var(--tui-fg)',
+};
+
+const devToggleStyle = {
+  position: 'fixed',
+  left: '50%',
+  bottom: 16,
+  transform: 'translateX(-50%)',
+  zIndex: 60,
+  display: 'flex',
+  alignItems: 'center',
+  gap: 'var(--tui-gap-sm)',
+  padding: 'var(--tui-pad-1) var(--tui-pad-2)',
+  border: '1px solid var(--tui-line)',
+  background: 'var(--tui-bg)',
   color: 'var(--tui-fg)',
 };

@@ -1,0 +1,63 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 2803 >>
+stream
+BT /F1 18 Tf 54 748 Td (Blackjack App Summary \(Repo-Based\)) Tj ET
+BT /F1 10 Tf 54 724 Td (Generated: 2026-02-28) Tj ET
+BT /F1 13 Tf 54 706 Td (What It Is) Tj ET
+BT /F1 11 Tf 54 692 Td (A single-page React app that implements a run-based blackjack loop with betting, hand resolution,) Tj ET
+BT /F1 11 Tf 54 678 Td (rounds, and a between-round shop.) Tj ET
+BT /F1 11 Tf 54 664 Td (It uses client-side routing and in-browser state stores; no backend service is referenced in this) Tj ET
+BT /F1 11 Tf 54 650 Td (repo.) Tj ET
+BT /F1 13 Tf 54 632 Td (Who It's For) Tj ET
+BT /F1 11 Tf 54 618 Td (Primary persona: Not found in repo. Inferred from UI copy: players who want a Balatro-style) Tj ET
+BT /F1 11 Tf 54 604 Td (blackjack run experience with deck/shop progression.) Tj ET
+BT /F1 13 Tf 54 586 Td (What It Does) Tj ET
+BT /F1 11 Tf 54 572 Td (- Start or continue a run through Main Menu and Run Hub screens.) Tj ET
+BT /F1 11 Tf 54 558 Td (- Set a buy-in with min/max guardrails before entering gameplay.) Tj ET
+BT /F1 11 Tf 54 544 Td (- Place bets per hand, then play with Hit, Stand, Double, and disabled Split control.) Tj ET
+BT /F1 11 Tf 54 530 Td (- Evaluate outcomes \(win/loss/push, blackjack checks\) and update purse + round counters.) Tj ET
+BT /F1 11 Tf 54 516 Td (- Show round/hand result modals and route to Shop at end-of-round milestones.) Tj ET
+BT /F1 11 Tf 54 502 Td (- Open card packs in Shop and add selected cards into the deck state.) Tj ET
+BT /F1 11 Tf 54 488 Td (- Inspect and filter deck + mock jokers in Deck Viewer, and reshuffle deck state.) Tj ET
+BT /F1 13 Tf 54 470 Td (How It Works \(Architecture\)) Tj ET
+BT /F1 11 Tf 54 456 Td (- UI layer: React components in src/*.jsx; routing in src/main.jsx via createBrowserRouter.) Tj ET
+BT /F1 11 Tf 54 442 Td (- State layer: Zustand stores for deck, player, dealer, and scoreboard in src/stores/*.js.) Tj ET
+BT /F1 11 Tf 54 428 Td (- Shared logic: blackjack/deck helpers in src/helpers.js; theme tokens in src/theme.js.) Tj ET
+BT /F1 11 Tf 54 414 Td (- Context layer: UserContext in src/context/UserContext.jsx stores session data in) Tj ET
+BT /F1 11 Tf 54 400 Td (sessionStorage.) Tj ET
+BT /F1 11 Tf 54 386 Td (- Data flow: user action -> component handler -> store/context update -> derived totals/outcomes) Tj ET
+BT /F1 11 Tf 54 372 Td (-> modal/navigation updates.) Tj ET
+BT /F1 11 Tf 54 358 Td (- External services/API/database: Not found in repo.) Tj ET
+BT /F1 13 Tf 54 340 Td (How To Run \(Minimal\)) Tj ET
+BT /F1 11 Tf 54 326 Td (  1. Install dependencies: npm install) Tj ET
+BT /F1 11 Tf 54 312 Td (- 2. Start local dev server: npm run dev) Tj ET
+BT /F1 11 Tf 54 298 Td (- 3. Optional production check: npm run build && npm run preview) Tj ET
+BT /F1 11 Tf 54 284 Td (- Node.js version requirement: Not found in repo.) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+3165
+%%EOF
