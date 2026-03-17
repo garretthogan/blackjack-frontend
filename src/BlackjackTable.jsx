@@ -7,6 +7,7 @@ import RoundResultModal from './RoundResultModal';
 import useScoreboardStore from './stores/scoreboard';
 import { useEffect, useState } from 'react';
 import { overlayClass, modalClass, buttonClass } from './theme';
+import { calcTotal } from './helpers';
 
 const handAreaStyle = {
   display: 'flex',
@@ -65,7 +66,9 @@ const labelStyle = {
 
 const TARGET_DEALER_BLACKJACK_ODDS = 1 / 50;
 const TARGET_PLAYER_BLACKJACK_ODDS = 1 / 15;
+const TARGET_PLAYER_SPLIT_ODDS = 1 / 10;
 const STANDARD_SINGLE_DECK_DEALER_BLACKJACK_ODDS = 128 / 2652;
+const STANDARD_SINGLE_DECK_SPLIT_ODDS = 96 / 1326;
 
 function resolveHitCardEffect(card, playerHand) {
   if (!card || card.effectId !== 'copy_adjacent_on_hit') return card;
@@ -132,10 +135,54 @@ function tunePlayerOpeningBlackjackOdds(initialCards, drawCards) {
   return initialCards;
 }
 
+function isSplitPair(cards) {
+  if (!cards || cards.length !== 2) return false;
+  return cards[0]?.rank === cards[1]?.rank;
+}
+
+function tunePlayerOpeningSplitOdds(initialCards, drawCards) {
+  if (isSplitPair(initialCards)) return initialCards;
+  if (TARGET_PLAYER_SPLIT_ODDS <= STANDARD_SINGLE_DECK_SPLIT_ODDS) return initialCards;
+
+  const boostChance =
+    (TARGET_PLAYER_SPLIT_ODDS - STANDARD_SINGLE_DECK_SPLIT_ODDS) /
+    (1 - STANDARD_SINGLE_DECK_SPLIT_ODDS);
+
+  if (Math.random() >= boostChance) return initialCards;
+
+  const maxAttempts = 24;
+  for (let i = 0; i < maxAttempts; i++) {
+    const candidate = drawCards(2);
+    if (candidate.length < 2) return initialCards;
+    if (isSplitPair(candidate)) return candidate;
+  }
+
+  return initialCards;
+}
+
+function evaluateHandOutcome(playerTotal, dealerTotal) {
+  if (playerTotal > 21) return { outcome: 'Loss', reason: 'Busted' };
+  if (playerTotal <= 21 && dealerTotal > 21)
+    return { outcome: 'Win', reason: 'Dealer busted' };
+  if (playerTotal === 21) return { outcome: 'Win', reason: 'Blackjack!' };
+  if (playerTotal < dealerTotal) return { outcome: 'Loss', reason: 'Dealer wins' };
+  if (playerTotal > dealerTotal) return { outcome: 'Win', reason: 'Player wins' };
+  return { outcome: 'Push', reason: 'Push' };
+}
+
+function purseDeltaForOutcome(outcome, wager) {
+  if (outcome === 'Win') return wager * 2;
+  if (outcome === 'Loss') return -wager;
+  return 0;
+}
+
 export default function BlackjackTable({}) {
   const [showShopCardOutline, setShowShopCardOutline] = useState(false);
   const [onlyShopCardsInDeck, setOnlyShopCardsInDeck] = useState(false);
   const [showRoundResultModal, setShowRoundResultModal] = useState(false);
+  const [isSplitMode, setIsSplitMode] = useState(false);
+  const [splitHands, setSplitHands] = useState([]);
+  const [activeSplitHandIndex, setActiveSplitHandIndex] = useState(0);
   const isDev = import.meta.env.DEV;
   const { addResult, lastResult, resetScoreboard } = useScoreboardStore();
   const {
@@ -160,6 +207,7 @@ export default function BlackjackTable({}) {
     playerStands,
     startPlacingBet,
     resetPlayerHand,
+    setPlayerHand,
   } = usePlayerStore();
 
   useEffect(() => {
@@ -182,9 +230,14 @@ export default function BlackjackTable({}) {
     resetPlayerHand();
     resetDealerHand();
     setShowRoundResultModal(false);
+    setIsSplitMode(false);
+    setSplitHands([]);
+    setActiveSplitHandIndex(0);
 
     resetDeck();
-    const playerCards = tunePlayerOpeningBlackjackOdds(drawCards(2), drawCards);
+    let playerCards = drawCards(2);
+    playerCards = tunePlayerOpeningBlackjackOdds(playerCards, drawCards);
+    playerCards = tunePlayerOpeningSplitOdds(playerCards, drawCards);
     const dealerCards = tuneDealerOpeningBlackjackOdds(drawCards(2), drawOne);
     if (playerCards.length) addPlayerCards(playerCards);
     if (dealerCards.length) addDealerCards(dealerCards);
@@ -211,16 +264,78 @@ export default function BlackjackTable({}) {
   }, [playerStood, isDealerThinking]);
 
   useEffect(() => {
+    if (!isSplitMode || !playerStood || isDealerThinking || lastResult) return;
+    if (splitHands.length !== 2) return;
+
+    const firstTotal = calcTotal(splitHands[0]);
+    const secondTotal = calcTotal(splitHands[1]);
+    const firstResult = evaluateHandOutcome(firstTotal, dealerValue);
+    const secondResult = evaluateHandOutcome(secondTotal, dealerValue);
+    const netPurseDelta =
+      purseDeltaForOutcome(firstResult.outcome, playerBet) +
+      purseDeltaForOutcome(secondResult.outcome, playerBet);
+    const overallOutcome =
+      netPurseDelta > 0 ? 'Win' : netPurseDelta < 0 ? 'Loss' : 'Push';
+    const reason = `Split: H1 ${firstResult.outcome} (${firstTotal}) | H2 ${secondResult.outcome} (${secondTotal})`;
+
+    addResult(
+      overallOutcome,
+      reason,
+      `${firstTotal} | ${secondTotal}`,
+      dealerValue,
+      { purseDelta: netPurseDelta }
+    );
+  }, [
+    isSplitMode,
+    playerStood,
+    isDealerThinking,
+    lastResult,
+    splitHands,
+    dealerValue,
+    playerBet,
+    addResult,
+  ]);
+
+  useEffect(() => {
     if (playerStood || lastResult) return;
-    if (playerValue >= 21 || dealerValue === 21) {
+    if (playerValue < 21 && dealerValue !== 21) return;
+
+    if (!isSplitMode) {
       playerStands();
+      return;
     }
-  }, [playerStood, playerValue, dealerValue, lastResult, playerStands]);
+
+    if (activeSplitHandIndex === 0) {
+      setActiveSplitHandIndex(1);
+      setPlayerHand(splitHands[1] || []);
+      return;
+    }
+
+    playerStands();
+  }, [
+    playerStood,
+    playerValue,
+    dealerValue,
+    lastResult,
+    playerStands,
+    isSplitMode,
+    activeSplitHandIndex,
+    splitHands,
+    setPlayerHand,
+  ]);
+
+  const canSplit =
+    !isSplitMode &&
+    !playerStood &&
+    !!playerBet &&
+    playerHand.length === 2 &&
+    playerHand[0]?.rank === playerHand[1]?.rank;
 
   return (
     <div style={tableStyle}>
       <RoundResultModal
         isOpen={showRoundResultModal}
+        skipAutoEvaluate={isSplitMode}
         onClose={() => {
           setShowRoundResultModal(false);
           startPlacingBet();
@@ -240,7 +355,28 @@ export default function BlackjackTable({}) {
         />
       </div>
       <div style={handAreaStyle} aria-label="Player hand">
-        <Hand cards={playerHand} showShopCardOutline={isDev && showShopCardOutline} />
+        {!isSplitMode && (
+          <Hand cards={playerHand} showShopCardOutline={isDev && showShopCardOutline} />
+        )}
+        {isSplitMode && (
+          <div style={splitHandsStyle}>
+            {splitHands.map((hand, index) => (
+              <div
+                key={`split-hand-${index}`}
+                style={{
+                  ...splitHandPanelStyle,
+                  borderColor:
+                    index === activeSplitHandIndex
+                      ? 'var(--tui-pink)'
+                      : 'var(--tui-line)',
+                }}
+              >
+                <div style={splitHandLabelStyle}>Hand {index + 1}</div>
+                <Hand cards={hand} showShopCardOutline={isDev && showShopCardOutline} />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
       <div style={labelStyle}>Player</div>
       {!isDealerThinking && (
@@ -258,7 +394,19 @@ export default function BlackjackTable({}) {
               className={`${buttonClass} disabled:opacity-50 disabled:cursor-not-allowed`}
               onClick={() => {
                 const playerDraw = drawOne();
-                if (playerDraw) addPlayerCards([resolveHitCardEffect(playerDraw, playerHand)]);
+                if (playerDraw) {
+                  const nextCard = resolveHitCardEffect(playerDraw, playerHand);
+                  if (!isSplitMode) {
+                    addPlayerCards([nextCard]);
+                  } else {
+                    const updatedHand = [...splitHands[activeSplitHandIndex], nextCard];
+                    const updatedSplitHands = splitHands.map((hand, i) =>
+                      i === activeSplitHandIndex ? updatedHand : hand
+                    );
+                    setSplitHands(updatedSplitHands);
+                    setPlayerHand(updatedHand);
+                  }
+                }
                 startThinking();
                 if (dealerValue < 17 && playerValue < 21) {
                   const dealerDraw = drawOne();
@@ -274,6 +422,18 @@ export default function BlackjackTable({}) {
             <button
               className={`${buttonClass} disabled:opacity-50 disabled:cursor-not-allowed`}
               onClick={() => {
+                if (!isSplitMode) {
+                  playerStands();
+                  startThinking();
+                  return;
+                }
+
+                if (activeSplitHandIndex === 0) {
+                  setActiveSplitHandIndex(1);
+                  setPlayerHand(splitHands[1]);
+                  return;
+                }
+
                 playerStands();
                 startThinking();
               }}
@@ -298,8 +458,24 @@ export default function BlackjackTable({}) {
             </button>
             <button
               className={`${buttonClass} disabled:opacity-50 disabled:cursor-not-allowed`}
-              style={{ opacity: 0.5 }}
-              disabled={true}
+              onClick={() => {
+                if (!canSplit) return;
+                const [firstCard, secondCard] = playerHand;
+                const firstHand = [firstCard];
+                const secondHand = [secondCard];
+
+                const firstDraw = drawOne();
+                const secondDraw = drawOne();
+                if (firstDraw) firstHand.push(firstDraw);
+                if (secondDraw) secondHand.push(secondDraw);
+
+                setIsSplitMode(true);
+                setSplitHands([firstHand, secondHand]);
+                setActiveSplitHandIndex(0);
+                setPlayerHand(firstHand);
+              }}
+              disabled={!canSplit}
+              style={{ opacity: canSplit ? 1 : 0.5, width: '100%' }}
             >
               Split
             </button>
@@ -356,4 +532,22 @@ const tableStyle = {
   maxWidth: 760,
   boxSizing: 'border-box',
   paddingInline: 4,
+};
+
+const splitHandsStyle = {
+  width: '100%',
+  display: 'grid',
+  gridTemplateColumns: '1fr',
+  gap: 'var(--tui-gap)',
+};
+
+const splitHandPanelStyle = {
+  border: '2px solid var(--tui-line)',
+  padding: 'var(--tui-pad-2)',
+};
+
+const splitHandLabelStyle = {
+  marginBottom: 'var(--tui-gap-sm)',
+  color: 'var(--tui-muted)',
+  fontSize: 'var(--tui-font-size-sm)',
 };

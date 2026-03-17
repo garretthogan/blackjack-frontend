@@ -45,6 +45,11 @@ const usePlayerStore = create(set => ({
         playerValue: calculatePlayerValue(newCards),
       };
     }),
+  setPlayerHand: cards =>
+    set(() => ({
+      playerHand: cards,
+      playerValue: calculatePlayerValue(cards),
+    })),
   resetPlayerHand: () =>
     set(() => ({
       playerHand: [],

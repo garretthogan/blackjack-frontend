@@ -1,69 +1,42 @@
 import { create } from 'zustand';
 
-export const HANDS_PER_FLOOR = 6;
 const useScoreboardStore = create(set => ({
   purse: 2000,
-  endOfRound: false,
-  roundsPlayed: 0,
-  roundsWon: 0,
-  roundsLost: 0,
   handsPlayed: 0,
   handsWon: 0,
   handsLost: 0,
   handsPushed: 0,
   wager: 0,
   lastResult: null, // { outcome: 'win'|'lose'|'push', reason: string, playerScore: number, dealerScore: number }
-  addResult: (outcome, reason, playerScore, dealerScore) =>
+  addResult: (outcome, reason, playerScore, dealerScore, options = {}) =>
     set(state => {
-      let {
-        handsPlayed,
-        handsWon,
-        handsLost,
-        handsPushed,
-        roundsLost,
-        roundsWon,
-        roundsPlayed,
-        endOfRound,
-        purse,
-      } = state;
+      let { handsPlayed, handsWon, handsLost, handsPushed, purse } = state;
       handsPlayed += 1;
+      const wagerAmount = options.wager ?? state.wager;
 
-      if (outcome === 'Win') {
-        purse += state.wager * 2;
-        handsWon += 1;
+      if (typeof options.purseDelta === 'number') {
+        purse += options.purseDelta;
+      } else if (outcome === 'Win') {
+        purse += wagerAmount * 2;
       } else if (outcome === 'Loss') {
-        handsLost += 1;
-        purse -= state.wager;
-      } else if (outcome === 'Push') handsPushed += 1;
-
-      if (handsPlayed % HANDS_PER_FLOOR === 0) {
-        endOfRound = true;
-        roundsPlayed += 1;
-
-        if (handsWon > handsLost) roundsWon += 1;
-        else if (handsWon <= handsLost) roundsLost += 1;
-
-        handsPlayed = 0;
-        handsLost = 0;
-        handsWon = 0;
+        purse -= wagerAmount;
       }
 
+      if (outcome === 'Win') handsWon += 1;
+      else if (outcome === 'Loss') handsLost += 1;
+      else if (outcome === 'Push') handsPushed += 1;
+
       return {
-        roundsLost,
-        roundsWon,
-        roundsPlayed,
         handsPlayed,
         handsWon,
         handsLost,
         handsPushed,
-        endOfRound,
         purse,
         lastResult: { outcome, reason, playerScore, dealerScore },
       };
     }),
   resetScoreboard: () =>
     set(() => ({
-      endOfRound: false,
       lastResult: null,
     })),
   withdrawFromPurse: amount =>
@@ -75,8 +48,14 @@ const useScoreboardStore = create(set => ({
       purse: state.purse + amount,
     })),
   setStartingPurse: amount =>
-    set(state => ({
+    set(() => ({
       purse: amount,
+      handsPlayed: 0,
+      handsWon: 0,
+      handsLost: 0,
+      handsPushed: 0,
+      wager: 0,
+      lastResult: null,
     })),
   setWager: newWager => set(() => ({ wager: newWager })),
 }));

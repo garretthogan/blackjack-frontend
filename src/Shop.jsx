@@ -252,8 +252,8 @@ export default function Shop() {
           >
             Reroll ({effectiveCost(rerollCost)})
           </button>
-          <button className={buttonClass} onClick={() => navigate('/run-hub')}>
-            Back to Hub
+          <button className={buttonClass} onClick={() => navigate('/blackjack')}>
+            Next Hand
           </button>
         </div>
       )}

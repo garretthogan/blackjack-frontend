@@ -4,7 +4,7 @@ import { containerClass, modalClass, buttonClass } from './theme';
 
 export default function RunHub() {
   const navigate = useNavigate();
-  const { roundsPlayed } = useScoreboardStore();
+  const { purse, handsPlayed, handsWon, handsLost } = useScoreboardStore();
 
   return (
     <div className={containerClass}>
@@ -13,10 +13,12 @@ export default function RunHub() {
           Run Hub
         </h1>
         <p style={{ margin: 0, marginBottom: 'var(--tui-gap)', color: 'var(--tui-muted)' }}>
-          Current Blind Goal: <span style={{ color: 'var(--tui-cyan)' }}>600</span> winnings in 3 hands
+          Bank: <span style={{ color: 'var(--tui-cyan)' }}>${purse}</span>
         </p>
         <p style={{ margin: 0, marginBottom: 'var(--tui-gap-lg)', color: 'var(--tui-muted)' }}>
-          Round: <span style={{ color: 'var(--tui-fg)' }}>{roundsPlayed + 1}</span>/8
+          Hands: <span style={{ color: 'var(--tui-fg)' }}>{handsPlayed}</span> | W:{' '}
+          <span style={{ color: 'var(--tui-ok)' }}>{handsWon}</span> / L:{' '}
+          <span style={{ color: 'var(--tui-danger)' }}>{handsLost}</span>
         </p>
 
         <div style={{ display: 'grid', gap: 'var(--tui-gap-lg)', marginBottom: 'var(--tui-gap-lg)' }}>
